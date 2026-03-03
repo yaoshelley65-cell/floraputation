@@ -914,6 +914,91 @@
   </div>
 </div>
 
+<!-- ===================== VARIETY DETAIL MODAL ===================== -->
+<div id="variety-modal" class="vmodal-overlay" onclick="closeVarietyModal(event)" style="display:none">
+  <div class="vmodal-container" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div class="vmodal-header">
+      <div class="vmodal-header-left">
+        <div class="vmodal-category" id="vm-category"></div>
+        <h2 class="vmodal-name" id="vm-name"></h2>
+        <div class="vmodal-meta" id="vm-meta"></div>
+      </div>
+      <div class="vmodal-header-right">
+        <div class="vmodal-score-ring">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(52,211,153,0.12)" stroke-width="10"/>
+            <circle id="vm-score-arc" cx="60" cy="60" r="50" fill="none" stroke="#34D399" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+              transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease"/>
+          </svg>
+          <div class="vmodal-score-center">
+            <span class="vmodal-score-num" id="vm-score"></span>
+            <span class="vmodal-score-label">Score</span>
+          </div>
+        </div>
+        <div class="vmodal-score-stats">
+          <div class="vmodal-stat"><span class="vstat-val" id="vm-trend"></span><span class="vstat-lbl">30-Day Trend</span></div>
+          <div class="vmodal-stat"><span class="vstat-val" id="vm-mentions"></span><span class="vstat-lbl">Total Mentions</span></div>
+          <div class="vmodal-stat"><span class="vstat-val" id="vm-region"></span><span class="vstat-lbl">Primary Region</span></div>
+        </div>
+      </div>
+      <button class="vmodal-close" onclick="closeVarietyModal()">✕</button>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="vmodal-charts">
+      <div class="vmodal-chart-card" style="flex:2">
+        <div class="vchart-title">Monthly Mention Volume</div>
+        <canvas id="vm-chart-mentions" height="160"></canvas>
+      </div>
+      <div class="vmodal-chart-card" style="flex:1">
+        <div class="vchart-title">Sentiment Distribution</div>
+        <canvas id="vm-chart-sentiment" height="160"></canvas>
+      </div>
+    </div>
+
+    <!-- Sentiment Bars -->
+    <div class="vmodal-sentiment-bars">
+      <div class="vsent-row">
+        <span class="vsent-label">Positive</span>
+        <div class="vsent-track"><div class="vsent-fill vsent-pos" id="vm-pos-bar"></div></div>
+        <span class="vsent-pct" id="vm-pos-pct"></span>
+      </div>
+      <div class="vsent-row">
+        <span class="vsent-label">Neutral</span>
+        <div class="vsent-track"><div class="vsent-fill vsent-neu" id="vm-neu-bar"></div></div>
+        <span class="vsent-pct" id="vm-neu-pct"></span>
+      </div>
+      <div class="vsent-row">
+        <span class="vsent-label">Negative</span>
+        <div class="vsent-track"><div class="vsent-fill vsent-neg" id="vm-neg-bar"></div></div>
+        <span class="vsent-pct" id="vm-neg-pct"></span>
+      </div>
+    </div>
+
+    <!-- Tags + AI Insight -->
+    <div class="vmodal-bottom">
+      <div class="vmodal-tags-col">
+        <div class="vchart-title">Trait Tags</div>
+        <div class="vmodal-tags" id="vm-tags"></div>
+        <div class="vmodal-breeder" id="vm-breeder"></div>
+        <div class="vmodal-season" id="vm-season"></div>
+      </div>
+      <div class="vmodal-insight-col">
+        <div class="vchart-title">🤖 AI Insight</div>
+        <div class="vmodal-insight-box" id="vm-insight"></div>
+      </div>
+    </div>
+
+    <!-- Footer CTA -->
+    <div class="vmodal-footer">
+      <button class="btn-outline" onclick="addToCompare(currentModalVariety); closeVarietyModal()">+ Add to Compare</button>
+      <span class="vmodal-footer-note">Data updated every 6 hours · Floraputation Intelligence Engine</span>
+    </div>
+  </div>
+</div>
+
 <!-- Scroll to top -->
 <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
