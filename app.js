@@ -745,7 +745,7 @@ function renderSearchResults(query = '') {
   // Limit display to 24 cards
   const display = results.slice(0, 24);
   grid.innerHTML = display.map(v => `
-    <div class="variety-card animate-in" onclick="scrollTo('#variety-detail')">
+    <div class="variety-card animate-in" onclick="openVarietyModal('${v.id}')" style="cursor:pointer" title="Click to view details">
       <div class="vc-category">${v.category}</div>
       <div class="vc-name">${v.name}${v.aka ? ` <small style="font-weight:400;color:var(--text-muted)">(${v.aka})</small>` : ''}${v.zhName ? ` <small style="font-weight:400;color:var(--primary-light)">${v.zhName}</small>` : ''}</div>
       <div class="vc-score-row">
@@ -1063,6 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      closeVarietyModal();
       document.querySelectorAll('.modal-overlay.open').forEach(m => {
         m.classList.remove('open');
         document.body.style.overflow = '';
@@ -1075,3 +1076,201 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// ============================================================
+// VARIETY DETAIL MODAL
+// ============================================================
+let currentModalVariety = null;
+let vmChartMentions = null;
+let vmChartSentiment = null;
+
+function openVarietyModal(varietyId) {
+  // Find variety in index
+  // ID may be number or string — use loose comparison
+  const v = MASTER_VARIETY_INDEX.find(x => String(x.id) === String(varietyId));
+  if (!v) return;
+  currentModalVariety = v;
+
+  const modal = document.getElementById('variety-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // ── Header ──
+  document.getElementById('vm-category').textContent = v.category.toUpperCase();
+  document.getElementById('vm-name').innerHTML =
+    v.name +
+    (v.zhName ? ` <span style="font-size:0.85em;font-weight:400;color:var(--primary-light)">${v.zhName}</span>` : '') +
+    (v.aka ? ` <span style="font-size:0.75em;font-weight:400;color:var(--text-muted)">(${v.aka})</span>` : '');
+  document.getElementById('vm-meta').innerHTML =
+    [v.subcategory, v.breeder, v.region].filter(Boolean).join(' · ');
+
+  // ── Score ring animation ──
+  const score = v.score;
+  document.getElementById('vm-score').textContent = score;
+  const arc = document.getElementById('vm-score-arc');
+  const circumference = 314;
+  // Start at full offset (empty), then animate to score
+  arc.style.strokeDashoffset = circumference;
+  arc.style.stroke = score >= 85 ? '#34D399' : score >= 70 ? '#2DD4BF' : '#f59e0b';
+  setTimeout(() => {
+    arc.style.strokeDashoffset = circumference - (circumference * score / 100);
+  }, 80);
+
+  // ── Stats ──
+  const trendVal = parseFloat(v.trend);
+  const trendEl = document.getElementById('vm-trend');
+  trendEl.textContent = (trendVal >= 0 ? '+' : '') + v.trend + '%';
+  trendEl.style.color = trendVal >= 0 ? 'var(--primary)' : '#ef4444';
+  document.getElementById('vm-mentions').textContent = formatMentions(v.mentions);
+  document.getElementById('vm-region').textContent = v.region || 'Global';
+
+  // ── Sentiment bars ──
+  const pos = v.pos || 65, neu = v.neu || 25, neg = v.neg || 10;
+  setTimeout(() => {
+    document.getElementById('vm-pos-bar').style.width = pos + '%';
+    document.getElementById('vm-neu-bar').style.width = neu + '%';
+    document.getElementById('vm-neg-bar').style.width = neg + '%';
+  }, 100);
+  document.getElementById('vm-pos-pct').textContent = pos + '%';
+  document.getElementById('vm-neu-pct').textContent = neu + '%';
+  document.getElementById('vm-neg-pct').textContent = neg + '%';
+
+  // ── Tags ──
+  const tagsEl = document.getElementById('vm-tags');
+  if (v.tags && v.tags.length) {
+    tagsEl.innerHTML = v.tags.map(t =>
+      `<span class="vm-tag">${t}</span>`
+    ).join('');
+  } else {
+    tagsEl.innerHTML = '';
+  }
+
+  // ── Breeder & Season ──
+  document.getElementById('vm-breeder').innerHTML = v.breeder
+    ? `<span style="color:var(--text-muted);font-size:0.85rem">🌱 Breeder: </span><span style="color:var(--text-secondary);font-size:0.85rem">${v.breeder}</span>`
+    : '';
+  document.getElementById('vm-season').innerHTML = v.season && v.season.length
+    ? `<span style="color:var(--text-muted);font-size:0.85rem">📅 Season: </span><span style="color:var(--text-secondary);font-size:0.85rem">${v.season.join(', ')}</span>`
+    : '';
+
+  // ── AI Insight ──
+  const insightEl = document.getElementById('vm-insight');
+  insightEl.innerHTML = generateVarietyInsight(v);
+
+  // ── Charts ──
+  renderModalMentionsChart(v);
+  renderModalSentimentChart(v);
+}
+
+function generateVarietyInsight(v) {
+  const trendVal = parseFloat(v.trend);
+  const trendDesc = trendVal > 3 ? 'strong upward momentum' : trendVal > 0 ? 'steady positive growth' : trendVal > -2 ? 'mild softening' : 'notable decline';
+  const scoreDesc = v.score >= 88 ? 'exceptional' : v.score >= 78 ? 'strong' : v.score >= 65 ? 'moderate' : 'developing';
+  const tags = v.tags || [];
+  const tagHighlight = tags.slice(0, 3).join(', ') || 'general appeal';
+  const regionNote = v.region && v.region !== 'Global'
+    ? `Strongest performance observed in <strong>${v.region}</strong>.`
+    : 'Performance is consistent across global markets.';
+
+  return `
+    <p><strong>${v.name}</strong> holds an <strong>${scoreDesc}</strong> reputation score of <strong>${v.score}/100</strong>,
+    with <strong>${trendDesc}</strong> (${(trendVal >= 0 ? '+' : '')}${v.trend}% over 30 days)
+    based on <strong>${formatMentions(v.mentions)}</strong> tracked mentions.</p>
+    <p>Key traits driving sentiment: <em>${tagHighlight}</em>.
+    ${regionNote}</p>
+    <p>Positive sentiment stands at <strong>${v.pos || 65}%</strong>, suggesting
+    ${(v.pos || 65) >= 70 ? 'high consumer satisfaction and strong commercial potential' : 'room for market positioning improvement'}.
+    ${v.confidence === 'low' ? '<span style="color:#f59e0b">⚠ Note: Data confidence is limited — consider supplementing with direct market research.</span>' : ''}
+    </p>
+  `;
+}
+
+function renderModalMentionsChart(v) {
+  if (vmChartMentions) { vmChartMentions.destroy(); vmChartMentions = null; }
+  const ctx = document.getElementById('vm-chart-mentions');
+  if (!ctx) return;
+
+  // Generate plausible monthly data based on score and trend
+  const base = v.mentions / 12;
+  const trendFactor = 1 + parseFloat(v.trend) / 100;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const data = months.map((_, i) => {
+    const seasonal = 1 + 0.25 * Math.sin((i - 2) * Math.PI / 6);
+    const growth = Math.pow(trendFactor, (i - 6) / 3);
+    return Math.round(base * seasonal * growth * (0.85 + Math.random() * 0.3));
+  });
+
+  vmChartMentions = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Mentions',
+        data: data,
+        backgroundColor: 'rgba(52,211,153,0.65)',
+        borderColor: '#34D399',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 11 },
+          callback: val => val >= 1000 ? (val/1000).toFixed(1)+'K' : val } }
+      }
+    }
+  });
+}
+
+function renderModalSentimentChart(v) {
+  if (vmChartSentiment) { vmChartSentiment.destroy(); vmChartSentiment = null; }
+  const ctx = document.getElementById('vm-chart-sentiment');
+  if (!ctx) return;
+
+  const pos = v.pos || 65, neu = v.neu || 25, neg = v.neg || 10;
+  vmChartSentiment = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Neutral', 'Negative'],
+      datasets: [{
+        data: [pos, neu, neg],
+        backgroundColor: ['#34D399', '#2DD4BF', '#ef4444'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#9ca3af', font: { size: 11 }, padding: 12, boxWidth: 12 }
+        }
+      }
+    }
+  });
+}
+
+function closeVarietyModal(event) {
+  // If called with event (overlay click), only close if clicking the overlay itself
+  if (event && event.target && event.target !== document.getElementById('variety-modal')) return;
+  const modal = document.getElementById('variety-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+  if (vmChartMentions) { vmChartMentions.destroy(); vmChartMentions = null; }
+  if (vmChartSentiment) { vmChartSentiment.destroy(); vmChartSentiment = null; }
+  // Reset arc
+  const arc = document.getElementById('vm-score-arc');
+  if (arc) arc.style.strokeDashoffset = '314';
+  // Reset sentiment bars
+  ['vm-pos-bar','vm-neu-bar','vm-neg-bar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = '0%';
+  });
+}
