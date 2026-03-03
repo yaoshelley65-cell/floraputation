@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floraputation – Plant Variety Reputation Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4.3.3/build/index.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <span class="logo-leaf">🌿</span>
+      <span class="logo-text">Flora<span class="logo-accent">putation</span></span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#search-section" class="nav-link">Search</a></li>
+      <li><a href="#variety-detail" class="nav-link">Analytics</a></li>
+      <li><a href="#compare-section" class="nav-link">Compare</a></li>
+      <li><a href="#insights-section" class="nav-link">Insights</a></li>
+      <li><a href="#methodology" class="nav-link">Methodology</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        <span class="live-text">Live Data</span>
+      </div>
+      <button class="btn-outline" onclick="showModal('login-modal')">Log In</button>
+      <button class="btn-primary" onclick="showModal('login-modal')">Get Started</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#search-section">Search</a>
+    <a href="#variety-detail">Analytics</a>
+    <a href="#compare-section">Compare</a>
+    <a href="#insights-section">Insights</a>
+    <a href="#methodology">Methodology</a>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      AI-Powered Reputation Intelligence · Updated Every 6 Hours
+    </div>
+    <h1 class="hero-title">
+      Quantifying Plant<br/>
+      <span class="gradient-text">Reputation</span> in Real Time
+    </h1>
+    <p class="hero-sub">
+      Discover which varieties truly perform — powered by AI-driven sentiment analysis
+      across social media, e-commerce reviews, and horticulture forums.
+    </p>
+    <div class="hero-cta">
+      <button class="btn-primary btn-lg" onclick="scrollTo('#search-section')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search Variety
+      </button>
+      <button class="btn-secondary btn-lg" onclick="scrollTo('#variety-detail')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Explore Dashboard
+      </button>
+      <button class="btn-outline btn-lg" onclick="showModal('demo-modal')">
+        Request Demo
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" data-target="12400">0</span>
+        <span class="stat-label">Varieties Tracked</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="3200000">0</span>
+        <span class="stat-label">Data Points / Month</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="47">0</span>
+        <span class="stat-label">Countries Covered</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="98">0</span>
+        <span class="stat-label">% Data Accuracy</span>
+      </div>
+    </div>
+  </div>
+  <!-- Mini Dashboard Preview -->
+  <div class="hero-visual">
+    <div class="dashboard-preview">
+      <div class="dp-header">
+        <span class="dp-title">Reputation Overview</span>
+        <span class="dp-badge">Live</span>
+      </div>
+      <div class="dp-chart-area" id="heroMiniChart"></div>
+      <div class="dp-metrics">
+        <div class="dp-metric">
+          <span class="dp-m-label">Top Variety</span>
+          <span class="dp-m-value green">Rosa 'Eden'</span>
+        </div>
+        <div class="dp-metric">
+          <span class="dp-m-label">Avg. Score</span>
+          <span class="dp-m-value">74.3</span>
+        </div>
+        <div class="dp-metric">
+          <span class="dp-m-label">Rising</span>
+          <span class="dp-m-value orange">+12 varieties</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SEARCH SECTION ===================== -->
+<section class="section search-section" id="search-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Variety Intelligence</span>
+      <h2 class="section-title">Find Any Plant Variety</h2>
+      <p class="section-desc">Search across 12,400+ tracked varieties with real-time reputation data.</p>
+    </div>
+
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by variety name, e.g. 'Rosa Eden', 'Chrysanthemum Zembla'..." oninput="handleSearch(this.value)" />
+        <button class="search-btn" onclick="performSearch()">Search</button>
+      </div>
+      <div class="search-autocomplete" id="searchAutocomplete"></div>
+    </div>
+
+    <div class="search-filters">
+      <div class="filter-group">
+        <label class="filter-label">Category</label>
+        <select id="filterCategory" class="filter-select" onchange="filterResults()">
+          <option value="">All Categories</option>
+          <option value="Rose">Rose</option>
+          <option value="Chrysanthemum">Chrysanthemum</option>
+          <option value="Lavender">Lavender</option>
+          <option value="Hydrangea">Hydrangea</option>
+          <option value="Tulip">Tulip</option>
+          <option value="Orchid">Orchid</option>
+          <option value="Petunia">Petunia</option>
+          <option value="Dahlia">Dahlia</option>
+          <option value="Lily">Lily</option>
+          <option value="Peony">Peony</option>
+          <option value="Perennial">Perennial</option>
+          <option value="Geranium">Geranium</option>
+          <option value="Impatiens">Impatiens</option>
+          <option value="Begonia">Begonia</option>
+          <option value="Marigold">Marigold</option>
+          <option value="Sunflower">Sunflower</option>
+          <option value="Zinnia">Zinnia</option>
+          <option value="Snapdragon">Snapdragon</option>
+          <option value="Carnation">Carnation</option>
+          <option value="Gerbera">Gerbera</option>
+          <option value="Lisianthus">Lisianthus</option>
+          <option value="Anemone">Anemone</option>
+          <option value="Ranunculus">Ranunculus</option>
+          <option value="Sweet Pea">Sweet Pea</option>
+          <option value="Cosmos">Cosmos</option>
+          <option value="Protea">Protea</option>
+          <option value="Anthurium">Anthurium</option>
+          <option value="Statice">Statice</option>
+          <option value="Gypsophila">Gypsophila</option>
+          <option value="Calla Lily">Calla Lily</option>
+          <option value="Stock">Stock</option>
+          <option value="Alstroemeria">Alstroemeria</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Region</label>
+        <select id="filterRegion" class="filter-select" onchange="filterResults()">
+          <option value="">Global</option>
+          <option value="North America">North America</option>
+          <option value="Europe">Europe</option>
+          <option value="Asia">Asia</option>
+          <option value="China">China</option>
+          <option value="Netherlands">Netherlands</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Season</label>
+        <select id="filterSeason" class="filter-select" onchange="filterResults()">
+          <option value="">All Seasons</option>
+          <option value="Spring">Spring</option>
+          <option value="Summer">Summer</option>
+          <option value="Autumn">Autumn</option>
+          <option value="Winter">Winter</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Time Range</label>
+        <select class="filter-select" id="timeRange">
+          <option value="3m">Last 3 Months</option>
+          <option value="1y" selected>Last 1 Year</option>
+          <option value="3y">Last 3 Years</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Quick Tags -->
+    <div class="quick-tags">
+      <span class="tag-label">Popular:</span>
+      <button class="quick-tag" onclick="quickSearch('Juliet')">Rosa 'Juliet'</button>
+      <button class="quick-tag" onclick="quickSearch('Stargazer')">Lilium 'Stargazer'</button>
+      <button class="quick-tag" onclick="quickSearch('Sarah Bernhardt')">Peony 'Sarah Bernhardt'</button>
+      <button class="quick-tag" onclick="quickSearch('Limelight')">Hydrangea 'Limelight'</button>
+      <button class="quick-tag" onclick="quickSearch('Cafe au Lait')">Dahlia 'Café au Lait'</button>
+      <button class="quick-tag" onclick="quickSearch('Cloni')">Ranunculus 'Cloni'</button>
+      <button class="quick-tag" onclick="quickSearch('洛阳红')">洛阳红牡丹</button>
+      <button class="quick-tag" onclick="quickSearch('fragrant')">Fragrant Varieties</button>
+    </div>
+
+    <!-- Search Results Grid -->
+    <div class="search-results" id="searchResults">
+      <div class="results-grid" id="resultsGrid">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VARIETY DETAIL ===================== -->
+<section class="section variety-detail" id="variety-detail">
+  <div class="container">
+    <div class="variety-header">
+      <div class="variety-title-block">
+        <div class="variety-breadcrumb">Rose · Hybrid Tea</div>
+        <h2 class="variety-name">Rosa <em>'Eden'</em> <span class="variety-aka">(Pierre de Ronsard)</span></h2>
+        <div class="variety-meta">
+          <span class="meta-tag">🌍 Global</span>
+          <span class="meta-tag">🌸 Spring / Summer</span>
+          <span class="meta-tag">📅 Updated 2 hours ago</span>
+        </div>
+      </div>
+      <div class="variety-actions">
+        <button class="btn-outline btn-sm" onclick="addToCompare('Rosa Eden')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add to Compare
+        </button>
+        <button class="btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Export Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Score Panel -->
+    <div class="score-panel">
+      <div class="score-main">
+        <div class="score-ring-wrap">
+          <canvas id="scoreRing" width="160" height="160"></canvas>
+          <div class="score-center">
+            <span class="score-num">87</span>
+            <span class="score-label">Reputation</span>
+          </div>
+        </div>
+        <div class="score-meta">
+          <div class="score-tier tier-excellent">Excellent</div>
+          <div class="score-trend">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            <span class="trend-up">+4.2 pts this month</span>
+          </div>
+          <div class="confidence-bar-wrap">
+            <span class="conf-label">Confidence</span>
+            <div class="confidence-bar"><div class="conf-fill" style="width:91%"></div></div>
+            <span class="conf-val">91%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-breakdown">
+        <div class="breakdown-item">
+          <div class="bd-header">
+            <span class="bd-label">Positive Sentiment</span>
+            <span class="bd-val green">72%</span>
+          </div>
+          <div class="bd-bar"><div class="bd-fill green-fill" style="width:72%"></div></div>
+        </div>
+        <div class="breakdown-item">
+          <div class="bd-header">
+            <span class="bd-label">Neutral Sentiment</span>
+            <span class="bd-val gray">19%</span>
+          </div>
+          <div class="bd-bar"><div class="bd-fill gray-fill" style="width:19%"></div></div>
+        </div>
+        <div class="breakdown-item">
+          <div class="bd-header">
+            <span class="bd-label">Negative Sentiment</span>
+            <span class="bd-val red">9%</span>
+          </div>
+          <div class="bd-bar"><div class="bd-fill red-fill" style="width:9%"></div></div>
+        </div>
+        <div class="mention-stat">
+          <div class="mention-num">48,320</div>
+          <div class="mention-label">Total Mentions (12 months)</div>
+        </div>
+      </div>
+
+      <div class="score-sources">
+        <div class="source-title">Data Sources</div>
+        <div class="source-item">
+          <span class="source-dot social"></span>
+          <span class="source-name">Social Media</span>
+          <span class="source-pct">41%</span>
+        </div>
+        <div class="source-item">
+          <span class="source-dot ecom"></span>
+          <span class="source-name">E-commerce Reviews</span>
+          <span class="source-pct">33%</span>
+        </div>
+        <div class="source-item">
+          <span class="source-dot forum"></span>
+          <span class="source-name">Horticulture Forums</span>
+          <span class="source-pct">18%</span>
+        </div>
+        <div class="source-item">
+          <span class="source-dot media"></span>
+          <span class="source-name">Trade Media</span>
+          <span class="source-pct">8%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Charts -->
+    <div class="analytics-grid">
+      <div class="chart-card wide">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Mentions Over Time</div>
+            <div class="chart-sub">Monthly mention volume with sentiment overlay</div>
+          </div>
+          <div class="chart-tabs">
+            <button class="chart-tab active" onclick="switchMentionChart('6m', this)">6M</button>
+            <button class="chart-tab" onclick="switchMentionChart('1y', this)">1Y</button>
+            <button class="chart-tab" onclick="switchMentionChart('3y', this)">3Y</button>
+          </div>
+        </div>
+        <canvas id="mentionsChart" height="100"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Sentiment Distribution</div>
+            <div class="chart-sub">Breakdown by source type</div>
+          </div>
+        </div>
+        <canvas id="sentimentChart" height="200"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Regional Performance</div>
+            <div class="chart-sub">Reputation score by region</div>
+          </div>
+        </div>
+        <canvas id="regionalChart" height="200"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Top Keywords</div>
+            <div class="chart-sub">Most frequent terms in mentions</div>
+          </div>
+        </div>
+        <div class="keyword-cloud" id="keywordCloud"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-title">Praise vs. Complaints</div>
+            <div class="chart-sub">Category breakdown</div>
+          </div>
+        </div>
+        <canvas id="praiseChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="ai-insights">
+      <div class="ai-header">
+        <div class="ai-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div>
+          <div class="ai-title">AI-Generated Insights</div>
+          <div class="ai-sub">Auto-synthesized from 48,320 data points · Last updated 2h ago</div>
+        </div>
+        <div class="ai-model-badge">GPT-4 NLP Engine</div>
+      </div>
+      <div class="ai-grid">
+        <div class="ai-card strengths">
+          <div class="ai-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Key Strengths
+          </div>
+          <ul class="ai-list">
+            <li>Exceptional flowering stability across climate zones</li>
+            <li>Intense, long-lasting color saturation praised by 68% of reviewers</li>
+            <li>Strong disease resistance (black spot, mildew) noted in EU markets</li>
+            <li>High repeat-bloom frequency — avg. 4.2 cycles/season</li>
+            <li>Excellent vase life (14–18 days) for cut flower applications</li>
+          </ul>
+        </div>
+        <div class="ai-card issues">
+          <div class="ai-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Common Issues
+          </div>
+          <ul class="ai-list">
+            <li>Shipping damage reported in 14% of e-commerce reviews (fragile petals)</li>
+            <li>Requires consistent pruning — maintenance burden for casual growers</li>
+            <li>Price sensitivity: premium positioning limits mass-market adoption</li>
+            <li>Humidity sensitivity noted in Southeast Asian markets</li>
+          </ul>
+        </div>
+        <div class="ai-card regional">
+          <div class="ai-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Regional Differences
+          </div>
+          <ul class="ai-list">
+            <li><strong>Europe (Score 91):</strong> Highest adoption; strong breeder community support</li>
+            <li><strong>North America (Score 88):</strong> Premium garden segment dominance</li>
+            <li><strong>China (Score 79):</strong> Growing luxury gifting market; price barrier noted</li>
+            <li><strong>Japan (Score 85):</strong> High appreciation for form and fragrance</li>
+          </ul>
+        </div>
+        <div class="ai-card grower-consumer">
+          <div class="ai-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Grower vs. Consumer Sentiment
+          </div>
+          <ul class="ai-list">
+            <li><strong>Growers (Score 84):</strong> Value yield consistency and disease resistance</li>
+            <li><strong>Consumers (Score 90):</strong> Prioritize aesthetics and fragrance</li>
+            <li><strong>Retailers (Score 86):</strong> Appreciate shelf appeal and demand predictability</li>
+            <li>Gap analysis: Growers report higher maintenance cost than consumers realize</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMPARE SECTION ===================== -->
+<section class="section compare-section" id="compare-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Comparative Analysis</span>
+      <h2 class="section-title">Compare Varieties</h2>
+      <p class="section-desc">Side-by-side reputation intelligence for up to 3 varieties.</p>
+    </div>
+
+    <div class="compare-selector">
+      <div class="compare-slot" id="slot1">
+        <div class="slot-label">Variety 1</div>
+        <div class="slot-content active">
+          <div class="slot-name">Rosa 'Eden'</div>
+          <div class="slot-score">87</div>
+          <button class="slot-remove" onclick="removeFromCompare(1)">×</button>
+        </div>
+      </div>
+      <div class="compare-vs">VS</div>
+      <div class="compare-slot" id="slot2">
+        <div class="slot-label">Variety 2</div>
+        <div class="slot-content active">
+          <div class="slot-name">Rosa 'Queen Elizabeth'</div>
+          <div class="slot-score">81</div>
+          <button class="slot-remove" onclick="removeFromCompare(2)">×</button>
+        </div>
+      </div>
+      <div class="compare-vs">VS</div>
+      <div class="compare-slot" id="slot3">
+        <div class="slot-label">Variety 3 (Optional)</div>
+        <div class="slot-content empty" onclick="showModal('add-variety-modal')">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Add Variety</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="compare-charts">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Multi-Dimensional Comparison</div>
+          <div class="chart-sub">Radar chart across 6 key dimensions</div>
+        </div>
+        <div style="position:relative;height:300px">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Reputation Trend Comparison</div>
+          <div class="chart-sub">12-month score trajectory</div>
+        </div>
+        <div style="position:relative;height:300px">
+          <canvas id="trendCompareChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="col-v1">Rosa 'Eden'</th>
+            <th class="col-v2">Rosa 'Queen Elizabeth'</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric-name">Reputation Score</td>
+            <td class="col-v1"><span class="score-badge high">87</span></td>
+            <td class="col-v2"><span class="score-badge mid">81</span></td>
+          </tr>
+          <tr>
+            <td class="metric-name">Mention Volume (12M)</td>
+            <td class="col-v1">48,320</td>
+            <td class="col-v2">31,450</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Positive Sentiment</td>
+            <td class="col-v1 green">72%</td>
+            <td class="col-v2 green">65%</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Negative Sentiment</td>
+            <td class="col-v1 red">9%</td>
+            <td class="col-v2 red">14%</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Growth Trend (3M)</td>
+            <td class="col-v1"><span class="trend-badge up">↑ +4.2</span></td>
+            <td class="col-v2"><span class="trend-badge down">↓ -1.1</span></td>
+          </tr>
+          <tr>
+            <td class="metric-name">Confidence Level</td>
+            <td class="col-v1">91%</td>
+            <td class="col-v2">87%</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Top Strength</td>
+            <td class="col-v1">Flowering stability</td>
+            <td class="col-v2">Hardy in cold climates</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Top Concern</td>
+            <td class="col-v1">Shipping fragility</td>
+            <td class="col-v2">Color fading in heat</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Best Region</td>
+            <td class="col-v1">Europe</td>
+            <td class="col-v2">North America</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INDUSTRY INSIGHTS ===================== -->
+<section class="section insights-section" id="insights-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Market Intelligence</span>
+      <h2 class="section-title">Industry Insights</h2>
+      <p class="section-desc">Aggregated reputation trends across the global floriculture market.</p>
+    </div>
+
+    <div class="insights-tabs">
+      <button class="ins-tab active" onclick="switchInsightTab('top10', this)">Top 10 Most Loved</button>
+      <button class="ins-tab" onclick="switchInsightTab('rising', this)">Rising Varieties</button>
+      <button class="ins-tab" onclick="switchInsightTab('declining', this)">Declining Alerts</button>
+      <button class="ins-tab" onclick="switchInsightTab('category', this)">Category Rankings</button>
+    </div>
+
+    <div class="insights-content" id="insightsContent">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Market Overview Charts -->
+    <div class="market-charts">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Category Reputation Overview</div>
+          <div class="chart-sub">Average reputation score by plant category</div>
+        </div>
+        <canvas id="categoryChart" height="200"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Monthly Mention Volume Trend</div>
+          <div class="chart-sub">Total platform-wide data ingestion</div>
+        </div>
+        <canvas id="volumeChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== METHODOLOGY ===================== -->
+<section class="section methodology" id="methodology">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Transparency</span>
+      <h2 class="section-title">How We Measure Reputation</h2>
+      <p class="section-desc">Our scoring methodology is built on reproducible NLP pipelines and weighted sentiment models.</p>
+    </div>
+
+    <div class="method-grid">
+      <div class="method-step">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="step-title">Data Ingestion</div>
+        <div class="step-desc">Continuous crawling of public data from social media platforms, e-commerce review APIs, horticulture forums, and trade publications. Only publicly available data is used.</div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="step-title">NLP Processing</div>
+        <div class="step-desc">Transformer-based sentiment classification (fine-tuned on floriculture domain corpus) assigns positive/neutral/negative labels with confidence scores to each mention.</div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="step-title">Weighted Scoring</div>
+        <div class="step-desc">Reputation Index = Σ(Sentiment Score × Source Weight × Recency Decay). Source weights: Social (1.0×), E-commerce (1.3×), Forums (1.1×), Trade Media (1.5×).</div>
+      </div>
+      <div class="method-step">
+        <div class="step-num">04</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="step-title">Real-Time Updates</div>
+        <div class="step-desc">Scores are recalculated every 6 hours. Confidence levels reflect data volume — varieties with fewer than 100 mentions display a low-confidence warning.</div>
+      </div>
+    </div>
+
+    <!-- Data Ethics -->
+    <div class="ethics-panel">
+      <div class="ethics-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Data Ethics & Transparency
+      </div>
+      <div class="ethics-grid">
+        <div class="ethics-item">
+          <div class="ethics-check">✓</div>
+          <div>
+            <div class="ethics-item-title">Public Data Only</div>
+            <div class="ethics-item-desc">All data sourced from publicly accessible platforms. No private user data is accessed or stored.</div>
+          </div>
+        </div>
+        <div class="ethics-item">
+          <div class="ethics-check">✓</div>
+          <div>
+            <div class="ethics-item-title">No Personal Exposure</div>
+            <div class="ethics-item-desc">Individual user identities are never tracked. All insights are aggregated at the variety level.</div>
+          </div>
+        </div>
+        <div class="ethics-item">
+          <div class="ethics-check">✓</div>
+          <div>
+            <div class="ethics-item-title">AI Bias Disclaimer</div>
+            <div class="ethics-item-desc">Our NLP models may reflect biases present in training data. Confidence scores help users interpret reliability.</div>
+          </div>
+        </div>
+        <div class="ethics-item">
+          <div class="ethics-check">✓</div>
+          <div>
+            <div class="ethics-item-title">Aggregated Insights Only</div>
+            <div class="ethics-item-desc">No individual reviews are reproduced. All outputs represent statistical aggregations across data sources.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== USER ROLES ===================== -->
+<section class="section roles-section" id="roles-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Tailored Intelligence</span>
+      <h2 class="section-title">Built for Every Role</h2>
+      <p class="section-desc">Customized dashboards and insights for each stakeholder in the floriculture value chain.</p>
+    </div>
+    <div class="roles-grid">
+      <div class="role-card" onclick="showModal('login-modal')">
+        <div class="role-icon breeder">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="role-title">Plant Breeders</div>
+        <div class="role-desc">Track feedback signals, identify improvement opportunities, and monitor how new releases are received in the market.</div>
+        <ul class="role-features">
+          <li>Variety feedback loop analysis</li>
+          <li>Competitor variety benchmarking</li>
+          <li>Early adoption signals</li>
+          <li>Trait-specific sentiment drilling</li>
+        </ul>
+        <button class="role-cta">Breeder Dashboard →</button>
+      </div>
+      <div class="role-card" onclick="showModal('login-modal')">
+        <div class="role-icon grower">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.1 2.3 3.5-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5 1z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+        </div>
+        <div class="role-title">Commercial Growers</div>
+        <div class="role-desc">Focus on cultivation performance data, disease resistance feedback, and regional growing condition insights.</div>
+        <ul class="role-features">
+          <li>Cultivation issue early warning</li>
+          <li>Regional performance comparison</li>
+          <li>Season-specific analytics</li>
+          <li>Supply chain sentiment signals</li>
+        </ul>
+        <button class="role-cta">Grower Dashboard →</button>
+      </div>
+      <div class="role-card" onclick="showModal('login-modal')">
+        <div class="role-icon retailer">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <div class="role-title">Retailers & Distributors</div>
+        <div class="role-desc">Monitor consumer sentiment trends, demand signals, and identify high-reputation varieties for optimal assortment planning.</div>
+        <ul class="role-features">
+          <li>Consumer demand forecasting</li>
+          <li>Assortment optimization signals</li>
+          <li>Price-sentiment correlation</li>
+          <li>Seasonal trend alerts</li>
+        </ul>
+        <button class="role-cta">Retail Dashboard →</button>
+      </div>
+      <div class="role-card" onclick="showModal('login-modal')">
+        <div class="role-icon enthusiast">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <div class="role-title">Horticulture Enthusiasts</div>
+        <div class="role-desc">Discover community-loved varieties, read aggregated reviews, and make informed decisions for your garden or collection.</div>
+        <ul class="role-features">
+          <li>Community reputation rankings</li>
+          <li>Variety discovery engine</li>
+          <li>Personal watchlist tracking</li>
+          <li>Seasonal recommendations</li>
+        </ul>
+        <button class="role-cta">Explore Free →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <span class="logo-leaf">🌿</span>
+        <span class="logo-text">Flora<span class="logo-accent">putation</span></span>
+      </div>
+      <p class="footer-tagline">Reputation intelligence for the global floriculture industry.</p>
+      <div class="footer-live">
+        <span class="live-dot"></span>
+        Data updated every 6 hours
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <div class="footer-col-title">Platform</div>
+        <a href="#search-section">Search Varieties</a>
+        <a href="#variety-detail">Analytics</a>
+        <a href="#compare-section">Compare</a>
+        <a href="#insights-section">Industry Insights</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Solutions</div>
+        <a href="#roles-section">For Breeders</a>
+        <a href="#roles-section">For Growers</a>
+        <a href="#roles-section">For Retailers</a>
+        <a href="#roles-section">For Enthusiasts</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <a href="#methodology">Methodology</a>
+        <a href="#methodology">Data Ethics</a>
+        <a href="#">API Access</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Floraputation. All data aggregated from public sources.</span>
+    <span>Privacy Policy · Terms of Use · AI Bias Disclaimer</span>
+  </div>
+</footer>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-overlay" id="login-modal" onclick="closeModalOnOverlay(event, 'login-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login-modal')">×</button>
+    <div class="modal-logo">🌿 Floraputation</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchModalTab('login', this)">Log In</button>
+      <button class="modal-tab" onclick="switchModalTab('signup', this)">Sign Up</button>
+    </div>
+    <div id="modal-login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="your@email.com" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••" class="form-input" />
+      </div>
+      <button class="btn-primary btn-full">Log In</button>
+      <div class="modal-divider">or continue with</div>
+      <div class="social-login">
+        <button class="social-btn">Google</button>
+        <button class="social-btn">LinkedIn</button>
+      </div>
+    </div>
+    <div id="modal-signup-form" style="display:none">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" placeholder="Your Name" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="your@email.com" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select class="form-input">
+          <option>Plant Breeder</option>
+          <option>Commercial Grower</option>
+          <option>Retailer / Distributor</option>
+          <option>Horticulture Enthusiast</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••" class="form-input" />
+      </div>
+      <button class="btn-primary btn-full">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="demo-modal" onclick="closeModalOnOverlay(event, 'demo-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('demo-modal')">×</button>
+    <div class="modal-logo">🌿 Request a Demo</div>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem;">See Floraputation in action with a personalized walkthrough for your team.</p>
+    <div class="form-group">
+      <label>Company / Organization</label>
+      <input type="text" placeholder="Your Company" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="your@company.com" class="form-input" />
+    </div>
+    <div class="form-group">
+      <label>Role</label>
+      <select class="form-input">
+        <option>Plant Breeder</option>
+        <option>Commercial Grower</option>
+        <option>Retailer / Distributor</option>
+        <option>Researcher</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Message (Optional)</label>
+      <textarea class="form-input" rows="3" placeholder="Tell us about your use case..."></textarea>
+    </div>
+    <button class="btn-primary btn-full">Submit Request</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="add-variety-modal" onclick="closeModalOnOverlay(event, 'add-variety-modal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-variety-modal')">×</button>
+    <div class="modal-logo">Add Variety to Compare</div>
+    <div class="form-group">
+      <input type="text" placeholder="Search variety name..." class="form-input" oninput="handleCompareSearch(this.value)" />
+    </div>
+    <div id="compareSearchResults" class="compare-search-results"></div>
+  </div>
+</div>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="varieties.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
