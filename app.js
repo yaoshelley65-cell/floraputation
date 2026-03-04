@@ -9,7 +9,20 @@ let currentUser = null;
 
 function initAuth() {
   const saved = sessionStorage.getItem('fp_user');
-  if (saved) { try { currentUser = JSON.parse(saved); } catch(e) {} }
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      // If stored user lacks role/tier, re-lookup from PRO_USERS for full object
+      if (parsed && parsed.email && (!parsed.role && !parsed.tier)) {
+        const fullUser = PRO_USERS.find(function(u) { return u.email.toLowerCase() === parsed.email.toLowerCase(); });
+        currentUser = fullUser || parsed;
+      } else {
+        currentUser = parsed;
+      }
+      // Update session with full user object
+      if (currentUser) sessionStorage.setItem('fp_user', JSON.stringify(currentUser));
+    } catch(e) {}
+  }
   renderAuthUI();
 }
 
@@ -55,7 +68,7 @@ function signOut() {
 }
 function openUpgrade()  { document.getElementById('upgrade-modal').classList.add('active'); }
 function closeUpgrade() { document.getElementById('upgrade-modal').classList.remove('active'); }
-function isPro() { return !!(currentUser && currentUser.tier === 'pro'); }
+function isPro() { return !!(currentUser && (currentUser.tier === 'pro' || currentUser.role === 'pro' || currentUser.role === 'admin')); }
 
 /* ===== TOAST ===== */
 function showToast(msg, type) {
@@ -139,7 +152,7 @@ function doSearch() {
   const q = ((document.getElementById('search-input') || {}).value || '').trim().toLowerCase();
   if (!q) { showSearchEmpty('Please enter a variety name or crop type to search.'); return; }
   const results = VARIETIES.filter(function(v) {
-    return v.name.toLowerCase().includes(q) ||
+    return v.variety.toLowerCase().includes(q) ||
            v.crop.toLowerCase().includes(q) ||
            (v.series || '').toLowerCase().includes(q);
   });
@@ -186,7 +199,7 @@ function renderSearchResults(results, query) {
           '<span class="vc-score-num">' + v.score + '</span>' +
         '</div>' +
         '<div class="vc-info">' +
-          '<div class="vc-name">' + v.name + '</div>' +
+          '<div class="vc-name">' + v.variety + '</div>' +
           '<div class="vc-meta">' + v.crop + (v.series ? ' \u00B7 ' + v.series : '') + '</div>' +
           '<div class="vc-badges">' +
             '<span class="dec-badge ' + dec.cls + '">' + dec.icon + ' ' + dec.label + '</span>' +
@@ -196,18 +209,18 @@ function renderSearchResults(results, query) {
       '</div>' +
       '<div class="vc-sentiment">' +
         '<div class="sent-bar">' +
-          '<div class="sent-pos" style="width:' + v.sentiment.positive + '%"></div>' +
-          '<div class="sent-neu" style="width:' + v.sentiment.neutral  + '%"></div>' +
-          '<div class="sent-neg" style="width:' + v.sentiment.negative + '%"></div>' +
+          '<div class="sent-pos" style="width:' + v.positive + '%"></div>' +
+          '<div class="sent-neu" style="width:' + v.neutral  + '%"></div>' +
+          '<div class="sent-neg" style="width:' + v.negative + '%"></div>' +
         '</div>' +
         '<div class="sent-labels">' +
-          '<span class="pos">' + v.sentiment.positive + '% Positive</span>' +
-          '<span class="neu">' + v.sentiment.neutral  + '% Neutral</span>' +
-          '<span class="neg">' + v.sentiment.negative + '% Negative</span>' +
+          '<span class="pos">' + v.positive + '% Positive</span>' +
+          '<span class="neu">' + v.neutral  + '% Neutral</span>' +
+          '<span class="neg">' + v.negative + '% Negative</span>' +
         '</div>' +
       '</div>' +
       '<div class="vc-footer">' +
-        '<span class="vc-mentions">' + fmt(v.totalMentions) + ' mentions</span>' +
+        '<span class="vc-mentions">' + fmt(v.mentionsRaw) + ' mentions</span>' +
         '<span class="vc-grade" style="color:' + sc + '">' + scoreGrade(v.score) + '</span>' +
       '</div>' +
     '</div>';
@@ -218,14 +231,15 @@ function renderSearchResults(results, query) {
 let modalCharts = {};
 
 function openVarietyModal(id) {
-  const v = VARIETIES.find(function(x) { return x.id === id; });
+  const numId = parseInt(id, 10);
+  const v = VARIETIES.find(function(x) { return x.id === numId; });
   if (!v) return;
 
   const modal = document.getElementById('variety-modal');
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  document.getElementById('modal-name').textContent   = v.name;
+  document.getElementById('modal-name').textContent   = v.variety;
   document.getElementById('modal-crop').textContent   = v.crop + (v.series ? ' \u00B7 ' + v.series : '');
 
   const dec = decisionInfo(v.decision);
@@ -237,15 +251,15 @@ function openVarietyModal(id) {
   document.getElementById('modal-score-grade').textContent  = scoreGrade(v.score);
   document.getElementById('modal-score-grade').style.color  = scoreColor(v.score);
   document.getElementById('modal-trend').innerHTML          = trendHtml(v.trend);
-  document.getElementById('modal-mentions').textContent     = fmt(v.totalMentions) + ' total mentions';
+  document.getElementById('modal-mentions').textContent     = fmt(v.mentionsRaw) + ' total mentions';
   document.getElementById('modal-confidence').textContent   = v.confidence + '% data confidence';
 
-  document.getElementById('modal-sent-pos').style.width     = v.sentiment.positive + '%';
-  document.getElementById('modal-sent-neu').style.width     = v.sentiment.neutral  + '%';
-  document.getElementById('modal-sent-neg').style.width     = v.sentiment.negative + '%';
-  document.getElementById('modal-sent-pos-val').textContent = v.sentiment.positive + '% Positive';
-  document.getElementById('modal-sent-neu-val').textContent = v.sentiment.neutral  + '% Neutral';
-  document.getElementById('modal-sent-neg-val').textContent = v.sentiment.negative + '% Negative';
+  document.getElementById('modal-sent-pos').style.width     = v.positive + '%';
+  document.getElementById('modal-sent-neu').style.width     = v.neutral  + '%';
+  document.getElementById('modal-sent-neg').style.width     = v.negative + '%';
+  document.getElementById('modal-sent-pos-val').textContent = v.positive + '% Positive';
+  document.getElementById('modal-sent-neu-val').textContent = v.neutral  + '% Neutral';
+  document.getElementById('modal-sent-neg-val').textContent = v.negative + '% Negative';
 
   const proSection = document.getElementById('modal-pro-content');
   const freeGate   = document.getElementById('modal-free-gate');
@@ -273,11 +287,11 @@ function drawModalRing(score) {
 }
 
 function renderProModalContent(v) {
-  document.getElementById('modal-consumer-score').textContent = v.segments.consumer;
-  document.getElementById('modal-grower-score').textContent   = v.segments.grower;
-  document.getElementById('modal-retailer-score').textContent = v.segments.retailer;
+  document.getElementById('modal-consumer-score').textContent = v.consumer;
+  document.getElementById('modal-grower-score').textContent   = v.grower;
+  document.getElementById('modal-retailer-score').textContent = v.retailer;
 
-  const gap   = v.segments.consumer - v.segments.grower;
+  const gap   = v.consumer - v.grower;
   const gapEl = document.getElementById('modal-cvg-gap');
   if (Math.abs(gap) >= 10) {
     gapEl.innerHTML = '<div class="cvg-gap-alert ' + (gap > 0 ? 'gap-pos' : 'gap-neg') + '">' +
@@ -308,7 +322,7 @@ function switchPeriod(period, btn) {
 function genMonthlyData(v, months) {
   const result = [];
   const now    = new Date();
-  const base   = Math.round(v.totalMentions / 12);
+  const base   = Math.round(v.mentionsRaw / 12);
   for (let i = months - 1; i >= 0; i--) {
     const d     = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const label = d.toLocaleString('en', { month: 'short', year: months > 12 ? '2-digit' : undefined });
@@ -358,11 +372,11 @@ function renderSegmentsChart(v) {
     data: {
       labels: labels,
       datasets: [
-        { label: 'Consumer', data: genSegmentTrend(v.segments.consumer, months),
+        { label: 'Consumer', data: genSegmentTrend(v.consumer, months),
           borderColor: '#3B82F6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.4, fill: false },
-        { label: 'Grower',   data: genSegmentTrend(v.segments.grower,   months),
+        { label: 'Grower',   data: genSegmentTrend(v.grower,   months),
           borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,0.1)',  tension: 0.4, fill: false },
-        { label: 'Retailer', data: genSegmentTrend(v.segments.retailer, months),
+        { label: 'Retailer', data: genSegmentTrend(v.retailer, months),
           borderColor: '#D97706', backgroundColor: 'rgba(217,119,6,0.1)',  tension: 0.4, fill: false },
       ]
     },
@@ -390,18 +404,18 @@ function renderRegionTable(v) {
 
 function generateAIInsights(v) {
   const insights = [];
-  const gap = v.segments.consumer - v.segments.grower;
+  const gap = v.consumer - v.grower;
   if (v.decision === 'push')  insights.push({ type: 'positive', icon: '\uD83D\uDE80', title: 'Scale Recommendation',       text: 'Strong performance across all segments. Prioritise distribution expansion in top-performing regions.' });
   if (v.decision === 'price') insights.push({ type: 'pricing',  icon: '\uD83D\uDCB0', title: 'Premium Pricing Signal',     text: 'Consumer demand significantly outpaces grower supply pressure. A ' + Math.round(gap * 0.3 + 5) + '\u2013' + Math.round(gap * 0.5 + 10) + '% price increase is supportable.' });
   if (v.decision === 'stop')  insights.push({ type: 'warning',  icon: '\u26A0\uFE0F', title: 'Phase-Out Advisory',         text: 'Declining sentiment and below-threshold scores suggest this variety is reaching end-of-life. Plan a 2-season wind-down.' });
   if (v.decision === 'elite') insights.push({ type: 'elite',    icon: '\uD83C\uDF31', title: 'Elite Channel Strategy',     text: 'High consumer appeal with cultivation complexity. Restrict to certified premium growers to protect brand equity.' });
   if (gap >= 15)              insights.push({ type: 'pricing',  icon: '\uD83D\uDCC8', title: 'Consumer\u2013Grower Gap Detected', text: 'A ' + gap + '-point gap is a classic premium pricing indicator. Review wholesale pricing.' });
-  if (v.sentiment.negative > 20) insights.push({ type: 'warning', icon: '\uD83D\uDD0D', title: 'Negative Sentiment Alert', text: v.sentiment.negative + '% negative mentions detected. Review recent feedback for recurring issues.' });
+  if (v.negative > 20) insights.push({ type: 'warning', icon: '\uD83D\uDD0D', title: 'Negative Sentiment Alert', text: v.negative + '% negative mentions detected. Review recent feedback for recurring issues.' });
   if (v.trend > 5)            insights.push({ type: 'positive', icon: '\uD83D\uDCCA', title: 'Momentum Accelerating',      text: '+' + v.trend.toFixed(1) + '% trend growth. Increase production allocation for next season.' });
   if (v.trend < -5)           insights.push({ type: 'warning',  icon: '\uD83D\uDCC9', title: 'Declining Momentum',         text: v.trend.toFixed(1) + '% trend decline. Investigate before committing further investment.' });
   const top = (v.regional || []).slice().sort(function(a, b) { return b.overall - a.overall; })[0];
   if (top) insights.push({ type: 'regional', icon: '\uD83C\uDF0D', title: 'Regional Strength', text: top.region + ' is your strongest market (score: ' + top.overall + '). Consider targeted marketing investment.' });
-  if (v.confidence >= 90) insights.push({ type: 'data', icon: '\u2705', title: 'High Data Confidence', text: v.confidence + '% confidence based on ' + fmt(v.totalMentions) + ' data points. Low analytical risk.' });
+  if (v.confidence >= 90) insights.push({ type: 'data', icon: '\u2705', title: 'High Data Confidence', text: v.confidence + '% confidence based on ' + fmt(v.mentionsRaw) + ' data points. Low analytical risk.' });
   return insights.slice(0, 6);
 }
 
@@ -429,9 +443,9 @@ function renderBenchmarkChart(v) {
       labels: ['Overall Score', 'Consumer', 'Grower', 'Retailer', 'Sentiment', 'Trend'],
       datasets: all.map(function(x, i) {
         return {
-          label: x.name,
-          data: [x.score, x.segments.consumer, x.segments.grower, x.segments.retailer,
-                 x.sentiment.positive, Math.max(0, Math.min(100, 50 + x.trend * 5))],
+          label: x.variety,
+          data: [x.score, x.consumer, x.grower, x.retailer,
+                 x.positive, Math.max(0, Math.min(100, 50 + x.trend * 5))],
           borderColor: i === 0 ? '#16A34A' : 'hsl(' + (i * 60 + 200) + ',60%,55%)',
           backgroundColor: i === 0 ? 'rgba(22,163,74,0.15)' : 'transparent',
           borderWidth: i === 0 ? 2.5 : 1.5, pointRadius: 3,
@@ -491,16 +505,16 @@ function renderDecisionGrid(filter) {
   grid.innerHTML = list.map(function(v) {
     return '<div class="dh-card" onclick="openVarietyModal(\'' + v.id + '\')">' +
       '<div class="dh-card-header">' +
-        '<div><div class="dh-name">' + v.name + '</div><div class="dh-crop">' + v.crop + '</div></div>' +
+        '<div><div class="dh-name">' + v.variety + '</div><div class="dh-crop">' + v.crop + '</div></div>' +
         '<div class="dh-score" style="color:' + scoreColor(v.score) + '">' + v.score + '</div>' +
       '</div>' +
       '<div class="dh-segments">' +
-        '<span>\uD83D\uDED2 ' + v.segments.consumer + '</span>' +
-        '<span>\uD83C\uDF31 ' + v.segments.grower   + '</span>' +
-        '<span>\uD83C\uDFEA ' + v.segments.retailer + '</span>' +
+        '<span>\uD83D\uDED2 ' + v.consumer + '</span>' +
+        '<span>\uD83C\uDF31 ' + v.grower   + '</span>' +
+        '<span>\uD83C\uDFEA ' + v.retailer + '</span>' +
       '</div>' +
       '<div class="dh-footer">' + trendHtml(v.trend) +
-        '<span class="dh-mentions">' + fmt(v.totalMentions) + ' mentions</span>' +
+        '<span class="dh-mentions">' + fmt(v.mentionsRaw) + ' mentions</span>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -557,24 +571,24 @@ function exportQReport() {
     '<h2>Top Varieties to Push &amp; Scale</h2>' +
     '<table><tr><th>Variety</th><th>Crop</th><th>Score</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Trend</th></tr>' +
     topPush.map(function(v) {
-      return '<tr><td><strong>' + v.name + '</strong></td><td>' + v.crop + '</td>' +
+      return '<tr><td><strong>' + v.variety + '</strong></td><td>' + v.crop + '</td>' +
         '<td style="color:#16A34A;font-weight:700">' + v.score + '</td>' +
-        '<td>' + v.segments.consumer + '</td><td>' + v.segments.grower + '</td><td>' + v.segments.retailer + '</td>' +
+        '<td>' + v.consumer + '</td><td>' + v.grower + '</td><td>' + v.retailer + '</td>' +
         '<td>' + (v.trend > 0 ? '+' : '') + v.trend.toFixed(1) + '%</td></tr>';
     }).join('') + '</table>' +
     '<h2>Varieties Recommended for Phase-Out</h2>' +
     '<table><tr><th>Variety</th><th>Crop</th><th>Score</th><th>Negative Sentiment</th><th>Trend</th></tr>' +
     topStop.map(function(v) {
-      return '<tr><td><strong>' + v.name + '</strong></td><td>' + v.crop + '</td>' +
+      return '<tr><td><strong>' + v.variety + '</strong></td><td>' + v.crop + '</td>' +
         '<td style="color:#DC2626;font-weight:700">' + v.score + '</td>' +
-        '<td>' + v.sentiment.negative + '%</td><td style="color:#DC2626">' + v.trend.toFixed(1) + '%</td></tr>';
+        '<td>' + v.negative + '%</td><td style="color:#DC2626">' + v.trend.toFixed(1) + '%</td></tr>';
     }).join('') + '</table>' +
     '<h2>Varieties with Premium Pricing Potential</h2>' +
     '<table><tr><th>Variety</th><th>Crop</th><th>Consumer</th><th>Grower</th><th>Gap</th><th>Suggested Increase</th></tr>' +
     topPrice.map(function(v) {
-      const g = v.segments.consumer - v.segments.grower;
-      return '<tr><td><strong>' + v.name + '</strong></td><td>' + v.crop + '</td>' +
-        '<td>' + v.segments.consumer + '</td><td>' + v.segments.grower + '</td>' +
+      const g = v.consumer - v.grower;
+      return '<tr><td><strong>' + v.variety + '</strong></td><td>' + v.crop + '</td>' +
+        '<td>' + v.consumer + '</td><td>' + v.grower + '</td>' +
         '<td style="color:#D97706;font-weight:700">+' + g + '</td>' +
         '<td>' + Math.round(g * 0.4 + 5) + '\u2013' + Math.round(g * 0.6 + 10) + '%</td></tr>';
     }).join('') + '</table>' +
@@ -630,7 +644,7 @@ function renderHeatmapGrid(view) {
     HEATMAP_REGIONS.map(function(r) { return '<th>' + r + '</th>'; }).join('') + '</tr></thead><tbody>';
 
   top.forEach(function(v) {
-    html += '<tr><td class="hm-variety-name">' + v.name + '</td><td class="hm-crop">' + v.crop + '</td>';
+    html += '<tr><td class="hm-variety-name">' + v.variety + '</td><td class="hm-crop">' + v.crop + '</td>';
     HEATMAP_REGIONS.forEach(function(region) {
       const rd    = (v.regional || []).find(function(r) { return r.region === region; });
       const score = rd ? (field === 'overall' ? rd.overall : rd[field]) : null;
@@ -665,7 +679,7 @@ function renderCompare() {
     input.addEventListener('input', function() {
       const q = this.value.toLowerCase();
       renderCompareDropdown(VARIETIES.filter(function(v) {
-        return v.name.toLowerCase().includes(q) || v.crop.toLowerCase().includes(q);
+        return v.variety.toLowerCase().includes(q) || v.crop.toLowerCase().includes(q);
       }).slice(0, 10));
     });
   }
@@ -678,7 +692,7 @@ function renderCompareDropdown(matches) {
   dd.style.display = 'block';
   dd.innerHTML = matches.map(function(v) {
     return '<div class="compare-dd-item" onclick="addToCompare(\'' + v.id + '\')">' +
-      '<strong>' + v.name + '</strong> <span class="compare-dd-crop">' + v.crop + '</span></div>';
+      '<strong>' + v.variety + '</strong> <span class="compare-dd-crop">' + v.crop + '</span></div>';
   }).join('');
 }
 
@@ -700,8 +714,9 @@ function renderCompareTags() {
   const tags = document.getElementById('compare-tags');
   if (!tags) return;
   tags.innerHTML = compareSelections.map(function(id) {
-    const v = VARIETIES.find(function(x) { return x.id === id; });
-    return v ? '<span class="compare-tag">' + v.name + ' <button onclick="removeFromCompare(\'' + id + '\')">\u00D7</button></span>' : '';
+    const numId = parseInt(id, 10);
+  const v = VARIETIES.find(function(x) { return x.id === numId; });
+    return v ? '<span class="compare-tag">' + v.variety + ' <button onclick="removeFromCompare(\'' + id + '\')">\u00D7</button></span>' : '';
   }).join('');
 }
 
@@ -722,9 +737,9 @@ function renderCompareChart() {
     data: {
       labels: ['Overall', 'Consumer', 'Grower', 'Retailer', 'Sentiment', 'Momentum'],
       datasets: varieties.map(function(v, i) {
-        return { label: v.name,
-          data: [v.score, v.segments.consumer, v.segments.grower, v.segments.retailer,
-                 v.sentiment.positive, Math.max(0, Math.min(100, 50 + v.trend * 5))],
+        return { label: v.variety,
+          data: [v.score, v.consumer, v.grower, v.retailer,
+                 v.positive, Math.max(0, Math.min(100, 50 + v.trend * 5))],
           borderColor: colors[i], backgroundColor: colors[i] + '22', borderWidth: 2, pointRadius: 4 };
       })
     },
@@ -741,16 +756,16 @@ function renderCompareTable(varieties) {
   if (!table) return;
   const rows = [
     ['Overall Score',      function(v) { return v.score; }],
-    ['Consumer Score',     function(v) { return v.segments.consumer; }],
-    ['Grower Score',       function(v) { return v.segments.grower; }],
-    ['Retailer Score',     function(v) { return v.segments.retailer; }],
-    ['Positive Sentiment', function(v) { return v.sentiment.positive + '%'; }],
+    ['Consumer Score',     function(v) { return v.consumer; }],
+    ['Grower Score',       function(v) { return v.grower; }],
+    ['Retailer Score',     function(v) { return v.retailer; }],
+    ['Positive Sentiment', function(v) { return v.positive + '%'; }],
     ['Trend',              function(v) { return (v.trend > 0 ? '+' : '') + v.trend.toFixed(1) + '%'; }],
-    ['Total Mentions',     function(v) { return fmt(v.totalMentions); }],
+    ['Total Mentions',     function(v) { return fmt(v.mentionsRaw); }],
     ['Decision',           function(v) { return decisionInfo(v.decision).label; }],
   ];
   table.innerHTML = '<table><thead><tr><th>Metric</th>' +
-    varieties.map(function(v) { return '<th>' + v.name + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    varieties.map(function(v) { return '<th>' + v.variety + '</th>'; }).join('') + '</tr></thead><tbody>' +
     rows.map(function(row) {
       return '<tr><td>' + row[0] + '</td>' + varieties.map(function(v) { return '<td>' + row[1](v) + '</td>'; }).join('') + '</tr>';
     }).join('') + '</tbody></table>';
@@ -774,7 +789,7 @@ function renderPortfolioPage() {
     input.addEventListener('input', function() {
       const q = this.value.toLowerCase();
       renderPortfolioDropdown(VARIETIES.filter(function(v) {
-        return v.name.toLowerCase().includes(q) || v.crop.toLowerCase().includes(q);
+        return v.variety.toLowerCase().includes(q) || v.crop.toLowerCase().includes(q);
       }).slice(0, 10));
     });
   }
@@ -787,7 +802,7 @@ function renderPortfolioDropdown(matches) {
   dd.style.display = 'block';
   dd.innerHTML = matches.map(function(v) {
     return '<div class="compare-dd-item" onclick="addToPortfolio(\'' + v.id + '\')">' +
-      '<strong>' + v.name + '</strong> <span class="compare-dd-crop">' + v.crop + '</span></div>';
+      '<strong>' + v.variety + '</strong> <span class="compare-dd-crop">' + v.crop + '</span></div>';
   }).join('');
 }
 
@@ -808,8 +823,9 @@ function renderPortfolioTags() {
   const tags = document.getElementById('portfolio-tags');
   if (!tags) return;
   tags.innerHTML = portfolioSelections.map(function(id) {
-    const v = VARIETIES.find(function(x) { return x.id === id; });
-    return v ? '<span class="compare-tag">' + v.name + ' <button onclick="removeFromPortfolio(\'' + id + '\')">\u00D7</button></span>' : '';
+    const numId = parseInt(id, 10);
+  const v = VARIETIES.find(function(x) { return x.id === numId; });
+    return v ? '<span class="compare-tag">' + v.variety + ' <button onclick="removeFromPortfolio(\'' + id + '\')">\u00D7</button></span>' : '';
   }).join('');
 }
 
@@ -865,7 +881,7 @@ function renderPortfolioChart(varieties) {
       datasets: [{
         label: 'Varieties',
         data: varieties.map(function(v) {
-          return { x: v.segments.consumer, y: v.segments.grower, r: Math.max(5, v.totalMentions / 1000), name: v.name };
+          return { x: v.consumer, y: v.grower, r: Math.max(5, v.mentionsRaw / 1000), name: v.variety };
         }),
         backgroundColor: varieties.map(function(v) { return (decColors[v.decision] || '#6B7280') + 'AA'; }),
         borderColor:     varieties.map(function(v) { return  decColors[v.decision] || '#6B7280'; }),

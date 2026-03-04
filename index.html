@@ -3,669 +3,438 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Floraputation — Variety Reputation Intelligence</title>
+<title>Floraputation &mdash; Variety Reputation Intelligence</title>
+<meta name="description" content="Real-time reputation intelligence for flower breeders.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ===== NAVIGATION ===== -->
+<!-- NAV -->
 <nav class="topnav" id="topnav">
   <div class="nav-inner">
-    <a href="#" class="nav-logo" onclick="showPage('home')">
-      <span class="logo-leaf">🌿</span>
+    <a href="#" class="nav-logo" onclick="navigate('home');return false;">
+      <span class="logo-leaf">&#x1F33F;</span>
       <span class="logo-text">Floraputation</span>
-      <span class="logo-ver">PRO</span>
     </a>
-    <div class="nav-links" id="nav-links">
-      <a href="#" class="nav-link" onclick="showPage('home')">Home</a>
-      <a href="#" class="nav-link pro-link" onclick="requirePro('decisions')">Decision Hub</a>
-      <a href="#" class="nav-link pro-link" onclick="requirePro('portfolio')">Portfolio</a>
-      <a href="#" class="nav-link pro-link" onclick="requirePro('heatmap')">Regional Map</a>
-      <a href="#" class="nav-link pro-link" onclick="requirePro('compare')">Compare</a>
-      <a href="#" class="nav-link" onclick="showPage('methodology')">Methodology</a>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" data-page="home">Search</a>
+      <a href="#" class="nav-link" data-page="decision">Decision Hub</a>
+      <a href="#" class="nav-link" data-page="heatmap">Regional Map</a>
+      <a href="#" class="nav-link" data-page="compare">Compare</a>
+      <a href="#" class="nav-link" data-page="portfolio">Portfolio</a>
     </div>
-    <div class="nav-actions">
-      <div class="live-badge"><div class="live-dot"></div>Live Data</div>
-      <div id="nav-user-area">
-        <button class="btn-outline btn-sm" onclick="showLoginModal()">Sign In</button>
-        <button class="btn-primary btn-sm" onclick="showUpgradeModal()">Get Pro Access</button>
-      </div>
-    </div>
+    <div id="nav-right" class="nav-right"></div>
   </div>
 </nav>
 
-<!-- ===== PAGE: HOME ===== -->
+<!-- PAGE: HOME / SEARCH -->
 <div id="page-home" class="page active">
-
-  <!-- HERO SEARCH -->
-  <section class="hero-search-section">
-    <div class="hero-search-inner">
-      <div class="hero-eyebrow">
-        <span class="eyebrow-badge">🌍 Trusted by leading European breeders</span>
-      </div>
-      <h1 class="hero-title">Discover What the Market<br><span class="highlight-green">Really Thinks</span> About Your Varieties</h1>
-      <p class="hero-subtitle">Real-time reputation intelligence powered by NLP analysis of social media, e-commerce reviews, and grower forums — across 523 varieties in 25 crop categories.</p>
-
-      <div class="search-box-hero">
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">Powered by NLP &amp; Machine Learning</div>
+      <h1 class="hero-title">Variety Reputation Intelligence<br><span class="hero-accent">for Flower Breeders</span></h1>
+      <p class="hero-subtitle">We continuously harvest social media, e-commerce reviews and grower forums to build a real-time <strong>Reputation Index</strong> for every plant variety &mdash; so you always know which varieties are truly loved.</p>
+      <div class="search-box">
         <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="hero-search" placeholder="Search by variety name, series or crop type… e.g. Calibrachoa, Superbells, Petunia Easy Wave" autocomplete="off">
-          <button class="search-btn-hero" onclick="doHeroSearch()">Search</button>
+          <span class="search-icon">&#x1F50D;</span>
+          <input type="text" id="search-input" placeholder="Search by variety name, crop type or series&hellip;" autocomplete="off">
+          <button class="search-btn" onclick="doSearch()">Search</button>
         </div>
-        <div class="search-suggestions" id="hero-suggestions"></div>
-      </div>
-
-      <div class="hero-hint-row">
-        <span class="hint-label">Popular searches:</span>
-        <button class="hint-chip" onclick="quickSearch('Calibrachoa')">Calibrachoa</button>
-        <button class="hint-chip" onclick="quickSearch('Petunia')">Petunia</button>
-        <button class="hint-chip" onclick="quickSearch('Begonia')">Begonia</button>
-        <button class="hint-chip" onclick="quickSearch('Dahlia')">Dahlia</button>
-        <button class="hint-chip" onclick="quickSearch('Verbena')">Verbena</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT IS FLORAPUTATION -->
-  <section class="about-section">
-    <div class="container">
-      <div class="about-grid">
-        <div class="about-text">
-          <div class="section-eyebrow">HOW IT WORKS</div>
-          <h2 class="section-title">Reputation Intelligence, Built for Breeders</h2>
-          <p class="about-body">Floraputation continuously crawls public data sources — social media platforms, e-commerce review sites, gardening forums, and grower communities — and applies natural language processing and machine learning to build a real-time <strong>Reputation Index</strong> for every plant variety.</p>
-          <p class="about-body" style="margin-top:12px;">Whether you are a breeder, grower, or flower enthusiast, you can search by <strong>crop category + variety name</strong> to instantly discover which varieties are truly loved, how many times they have been mentioned online, and what the overall sentiment looks like.</p>
-          <div class="about-features">
-            <div class="about-feat"><span class="feat-icon">📡</span><span>Continuous data collection from 40+ public sources</span></div>
-            <div class="about-feat"><span class="feat-icon">🧠</span><span>NLP sentiment analysis in 12 languages</span></div>
-            <div class="about-feat"><span class="feat-icon">📊</span><span>Reputation score updated weekly per variety</span></div>
-            <div class="about-feat"><span class="feat-icon">🌍</span><span>Regional breakdown across 8 key markets</span></div>
-          </div>
+        <div class="search-chips">
+          <span class="chip-label">Popular:</span>
+          <button class="chip" onclick="quickSearch('Calibrachoa')">Calibrachoa</button>
+          <button class="chip" onclick="quickSearch('Petunia')">Petunia</button>
+          <button class="chip" onclick="quickSearch('Verbena')">Verbena</button>
+          <button class="chip" onclick="quickSearch('Impatiens')">Impatiens</button>
+          <button class="chip" onclick="quickSearch('Begonia')">Begonia</button>
+          <button class="chip" onclick="quickSearch('Geranium')">Geranium</button>
         </div>
-        <div class="about-visual">
-          <div class="score-demo-card">
-            <div class="demo-label">Example: Reputation Score</div>
-            <div class="demo-score-wrap">
-              <svg viewBox="0 0 120 120" class="demo-ring">
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
-                <circle cx="60" cy="60" r="50" fill="none" stroke="#16a34a" stroke-width="10"
-                  stroke-dasharray="251.2" stroke-dashoffset="50.24" stroke-linecap="round"
-                  transform="rotate(-90 60 60)"/>
-              </svg>
-              <div class="demo-score-inner"><span class="demo-score-num">80</span><span class="demo-score-sub">/100</span></div>
+      </div>
+      <div class="search-meta" id="search-meta"></div>
+      <div class="search-results" id="search-results">
+        <div class="search-welcome">
+          <div class="welcome-grid">
+            <div class="welcome-card">
+              <div class="wc-icon">&#x1F4CA;</div>
+              <div class="wc-title">523 Varieties Tracked</div>
+              <div class="wc-text">Across 25 crop categories, each with 100+ verified data points</div>
             </div>
-            <div class="demo-verdict">Good</div>
-            <div class="demo-bars">
-              <div class="demo-bar-row"><span>Positive</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:72%;background:#16a34a"></div></div><span>72%</span></div>
-              <div class="demo-bar-row"><span>Neutral</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:18%;background:#9ca3af"></div></div><span>18%</span></div>
-              <div class="demo-bar-row"><span>Negative</span><div class="demo-bar-bg"><div class="demo-bar-fill" style="width:10%;background:#dc2626"></div></div><span>10%</span></div>
+            <div class="welcome-card">
+              <div class="wc-icon">&#x1F30D;</div>
+              <div class="wc-title">8 Global Markets</div>
+              <div class="wc-text">Netherlands, Germany, France, UK, USA, Japan, Australia, China</div>
             </div>
-            <div class="demo-mentions">4,280 total mentions</div>
-            <div class="demo-blur-overlay">
-              <div class="blur-cta">
-                <div class="blur-icon">🔒</div>
-                <div class="blur-text">Full data available for Pro users</div>
-                <button class="btn-primary btn-sm" onclick="showUpgradeModal()">Get Pro Access</button>
-              </div>
+            <div class="welcome-card">
+              <div class="wc-icon">&#x1F9E0;</div>
+              <div class="wc-title">3 Audience Segments</div>
+              <div class="wc-text">Consumer, Grower and Retailer scores tracked independently</div>
+            </div>
+            <div class="welcome-card pro-card">
+              <div class="wc-icon">&#x1F680;</div>
+              <div class="wc-title">Pro: Strategic Decisions</div>
+              <div class="wc-text">Push, Phase Out, Raise Price or Elite Growers Only &mdash; for every variety</div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- PRO FEATURES TEASER -->
-  <section class="pro-teaser-section">
-    <div class="container">
-      <div class="section-eyebrow" style="text-align:center;">PRO INTELLIGENCE SUITE</div>
-      <h2 class="section-title" style="text-align:center;">Everything a Breeder Needs to Decide</h2>
-      <p style="text-align:center;color:var(--text-muted);max-width:600px;margin:0 auto 40px;">Designed exclusively for professional breeding companies. Turn reputation data into commercial strategy.</p>
-      <div class="pro-features-grid">
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">🚀</div>
-          <h3>Decision Hub</h3>
-          <p>Four strategic decisions answered: which varieties to push, phase out, raise price on, or restrict to elite growers — backed by data.</p>
-          <button class="btn-outline btn-sm" onclick="requirePro('decisions')">View Decision Hub →</button>
-        </div>
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">📁</div>
-          <h3>Portfolio Risk Assessment</h3>
-          <p>Select multiple varieties and instantly receive a portfolio risk score, diversification index, and concentration warnings.</p>
-          <button class="btn-outline btn-sm" onclick="requirePro('portfolio')">Analyse Portfolio →</button>
-        </div>
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">🗺️</div>
-          <h3>Regional Heatmap</h3>
-          <p>Visualise reputation strength across 8 key markets. Identify where your varieties are loved — and where they are overlooked.</p>
-          <button class="btn-outline btn-sm" onclick="requirePro('heatmap')">Open Regional Map →</button>
-        </div>
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">⚖️</div>
-          <h3>Competitive Benchmark</h3>
-          <p>Compare your varieties head-to-head against competitors within the same crop category. Spot gaps and opportunities.</p>
-          <button class="btn-outline btn-sm" onclick="requirePro('compare')">Compare Varieties →</button>
-        </div>
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">📄</div>
-          <h3>Quarterly Business Reports</h3>
-          <p>Export a fully formatted HTML report covering KPIs, top performers, strategic decisions, and AI-generated recommendations.</p>
-          <button class="btn-outline btn-sm" onclick="requirePro('decisions')">Export Report →</button>
-        </div>
-        <div class="pro-feat-card">
-          <div class="pro-feat-icon">🤖</div>
-          <h3>AI Strategy Insights</h3>
-          <p>Every variety comes with 6 AI-generated strategic insights covering pricing, expansion, risk, and channel recommendations.</p>
-          <button class="btn-outline btn-sm" onclick="showUpgradeModal()">Get Pro Access →</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- UPGRADE CTA -->
-  <section class="upgrade-cta-section">
-    <div class="container">
-      <div class="upgrade-cta-inner">
-        <div>
-          <h2 class="upgrade-title">Ready to Make Data-Driven Breeding Decisions?</h2>
-          <p class="upgrade-sub">Join leading European breeding companies already using Floraputation Pro to guide their portfolio strategy.</p>
-        </div>
-        <div class="upgrade-actions">
-          <button class="btn-white btn-lg" onclick="showUpgradeModal()">Request Pro Access</button>
-          <button class="btn-outline-white btn-lg" onclick="showPage('methodology')">Learn More</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</div><!-- /page-home -->
-
-<!-- ===== PAGE: DECISIONS ===== -->
-<div id="page-decisions" class="page">
-  <div class="page-header">
-    <div class="container">
-      <div class="page-header-inner">
-        <div>
-          <div class="section-eyebrow">DECISION HUB</div>
-          <h1 class="page-title">Four Strategic Decisions, Answered</h1>
-          <p class="page-desc">Based on reputation data, sentiment analysis and market momentum — your portfolio mapped to clear commercial actions.</p>
-        </div>
-        <button class="btn-primary" onclick="exportQuarterlyReport()">📄 Export Q-Report</button>
-      </div>
-    </div>
   </div>
-  <div class="container" style="padding-top:32px;padding-bottom:60px;">
-    <!-- KPI Row -->
-    <div class="dec-kpi-row">
-      <div class="dec-kpi-card dec-push" onclick="switchDecision('push')">
-        <div class="dec-kpi-icon">🚀</div>
-        <div class="dec-kpi-num" id="kpi-push">--</div>
-        <div class="dec-kpi-label">Push &amp; Scale</div>
-        <div class="dec-kpi-sub">High score, strong trend</div>
-      </div>
-      <div class="dec-kpi-card dec-stop" onclick="switchDecision('stop')">
-        <div class="dec-kpi-icon">🛑</div>
-        <div class="dec-kpi-num" id="kpi-stop">--</div>
-        <div class="dec-kpi-label">Phase Out</div>
-        <div class="dec-kpi-sub">Low score or declining</div>
-      </div>
-      <div class="dec-kpi-card dec-price" onclick="switchDecision('price')">
-        <div class="dec-kpi-icon">💰</div>
-        <div class="dec-kpi-num" id="kpi-price">--</div>
-        <div class="dec-kpi-label">Raise Price</div>
-        <div class="dec-kpi-sub">Consumer loved, grower challenged</div>
-      </div>
-      <div class="dec-kpi-card dec-elite" onclick="switchDecision('elite')">
-        <div class="dec-kpi-icon">🌿</div>
-        <div class="dec-kpi-num" id="kpi-elite">--</div>
-        <div class="dec-kpi-label">Elite Growers Only</div>
-        <div class="dec-kpi-sub">High demand, expert cultivation</div>
-      </div>
-    </div>
-    <!-- Filter tabs -->
-    <div class="dec-tabs">
-      <button class="dec-tab active" id="dtab-push" onclick="switchDecision('push')">🚀 Push</button>
-      <button class="dec-tab" id="dtab-stop" onclick="switchDecision('stop')">🛑 Phase Out</button>
-      <button class="dec-tab" id="dtab-price" onclick="switchDecision('price')">💰 Raise Price</button>
-      <button class="dec-tab" id="dtab-elite" onclick="switchDecision('elite')">🌿 Elite Growers Only</button>
-    </div>
-    <!-- Insight strip -->
-    <div class="insight-strip" id="dec-insight-strip"></div>
-    <!-- Grid -->
-    <div class="variety-grid" id="decision-grid"></div>
-  </div>
-</div>
 
-<!-- ===== PAGE: PORTFOLIO ===== -->
-<div id="page-portfolio" class="page">
-  <div class="page-header">
-    <div class="container">
-      <div class="page-header-inner">
-        <div>
-          <div class="section-eyebrow">PORTFOLIO ANALYSIS</div>
-          <h1 class="page-title">Portfolio Risk Assessment</h1>
-          <p class="page-desc">Select varieties to build a portfolio and receive an instant risk and diversification analysis.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="container" style="padding-top:32px;padding-bottom:60px;">
-    <div class="portfolio-layout">
-      <div class="portfolio-selector">
-        <div class="card">
-          <div class="card-title">Search &amp; Add Varieties</div>
-          <div class="search-row">
-            <input type="text" id="portfolio-search" placeholder="Search variety name…" oninput="portfolioSearchInput(this.value)">
-            <button class="btn-primary btn-sm" onclick="portfolioSearch()">Add</button>
+  <!-- Free vs Pro -->
+  <div class="freemium-section">
+    <div class="freemium-inner">
+      <h2 class="section-title">Intelligence That Drives Decisions</h2>
+      <p class="section-sub">Floraputation turns raw online data into clear commercial guidance for your breeding portfolio.</p>
+      <div class="tier-grid">
+        <div class="tier-card tier-free">
+          <div class="tier-header">
+            <div class="tier-name">Free Access</div>
+            <div class="tier-price">No cost</div>
           </div>
-          <div id="portfolio-suggestions" class="portfolio-suggestions"></div>
-          <div class="portfolio-selected" id="portfolio-selected">
-            <div class="empty-hint">No varieties selected yet. Search above to add.</div>
-          </div>
-          <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="analysePortfolio()">Analyse Portfolio</button>
+          <ul class="tier-features">
+            <li>&#x2714; Search any variety by name or crop</li>
+            <li>&#x2714; Overall Reputation Score (0&ndash;100)</li>
+            <li>&#x2714; Sentiment breakdown (Positive / Neutral / Negative)</li>
+            <li>&#x2714; Total mention count &amp; data confidence</li>
+            <li>&#x2714; Decision signal (Push / Phase Out / Raise Price / Elite)</li>
+            <li class="locked">&#x1F512; Segment scores (Consumer, Grower, Retailer)</li>
+            <li class="locked">&#x1F512; Regional breakdown by market</li>
+            <li class="locked">&#x1F512; Trend charts (3M / 6M / 1Y / 3Y)</li>
+            <li class="locked">&#x1F512; AI strategy insights</li>
+            <li class="locked">&#x1F512; Competitive benchmark radar</li>
+            <li class="locked">&#x1F512; Quarterly report export</li>
+          </ul>
         </div>
-      </div>
-      <div class="portfolio-results" id="portfolio-results">
-        <div class="empty-state">
-          <div class="empty-icon">📁</div>
-          <div class="empty-title">Select at least 2 varieties to begin analysis</div>
-          <div class="empty-sub">Your portfolio risk score, diversification index, and strategic recommendations will appear here.</div>
+        <div class="tier-card tier-pro">
+          <div class="tier-badge">Recommended for Breeders</div>
+          <div class="tier-header">
+            <div class="tier-name">Pro Access</div>
+            <div class="tier-price">Contact us</div>
+          </div>
+          <ul class="tier-features">
+            <li>&#x2714; Everything in Free</li>
+            <li>&#x2714; Consumer, Grower &amp; Retailer scores per variety</li>
+            <li>&#x2714; Regional heatmap across 8 global markets</li>
+            <li>&#x2714; Trend charts with 3M / 6M / 1Y / 3Y periods</li>
+            <li>&#x2714; AI-generated strategy insights per variety</li>
+            <li>&#x2714; Competitive benchmark radar vs. same-crop peers</li>
+            <li>&#x2714; Decision Hub: full portfolio view by decision type</li>
+            <li>&#x2714; Portfolio risk assessment &amp; diversification score</li>
+            <li>&#x2714; Variety comparison (up to 5 at once)</li>
+            <li>&#x2714; Quarterly HTML report export</li>
+          </ul>
+          <button class="btn-pro-cta" onclick="openUpgrade()">Get Pro Access</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== PAGE: HEATMAP ===== -->
+<!-- PAGE: DECISION HUB -->
+<div id="page-decision" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Decision Hub</h1>
+    <p class="page-desc">Your entire portfolio, sorted by strategic recommendation. Click any variety for full intelligence.</p>
+    <button class="btn-export" onclick="exportQReport()">&#x1F4E5; Export Q-Report</button>
+  </div>
+  <div id="decision-pro-gate" class="pro-gate">
+    <div class="pro-gate-inner">
+      <div class="pro-gate-icon">&#x1F512;</div>
+      <h3>Pro Feature</h3>
+      <p>The Decision Hub gives you a full portfolio view sorted by strategic action &mdash; Push &amp; Scale, Phase Out, Raise Price, or Elite Growers Only.</p>
+      <button class="btn-upgrade" onclick="openUpgrade()">Get Pro Access</button>
+    </div>
+  </div>
+  <div id="decision-content" style="display:none">
+    <div class="decision-kpis">
+      <div class="dkpi-card dkpi-push"><div class="dkpi-num" id="dec-count-push">0</div><div class="dkpi-label">&#x1F680; Push &amp; Scale</div></div>
+      <div class="dkpi-card dkpi-stop"><div class="dkpi-num" id="dec-count-stop">0</div><div class="dkpi-label">&#x1F6D1; Phase Out</div></div>
+      <div class="dkpi-card dkpi-price"><div class="dkpi-num" id="dec-count-price">0</div><div class="dkpi-label">&#x1F4B0; Raise Price</div></div>
+      <div class="dkpi-card dkpi-elite"><div class="dkpi-num" id="dec-count-elite">0</div><div class="dkpi-label">&#x1F331; Elite Growers Only</div></div>
+    </div>
+    <div class="decision-layout">
+      <div class="decision-main">
+        <div class="dec-tabs">
+          <button class="dec-tab active" data-filter="push"  onclick="switchDecision('push', this)">&#x1F680; Push &amp; Scale</button>
+          <button class="dec-tab"        data-filter="stop"  onclick="switchDecision('stop', this)">&#x1F6D1; Phase Out</button>
+          <button class="dec-tab"        data-filter="price" onclick="switchDecision('price', this)">&#x1F4B0; Raise Price</button>
+          <button class="dec-tab"        data-filter="elite" onclick="switchDecision('elite', this)">&#x1F331; Elite Only</button>
+        </div>
+        <div class="decision-grid" id="decision-grid"></div>
+      </div>
+      <div class="decision-sidebar">
+        <div class="sidebar-card">
+          <h4>Portfolio Distribution</h4>
+          <div style="height:220px"><canvas id="chart-decision-dist"></canvas></div>
+        </div>
+        <div class="sidebar-card sidebar-guide">
+          <h4>Decision Guide</h4>
+          <div class="guide-item"><span class="dec-badge dec-push">&#x1F680; Push</span><p>High score, positive trend. Prioritise distribution and marketing investment.</p></div>
+          <div class="guide-item"><span class="dec-badge dec-stop">&#x1F6D1; Phase Out</span><p>Below-threshold score or sustained decline. Plan a 2-season wind-down.</p></div>
+          <div class="guide-item"><span class="dec-badge dec-price">&#x1F4B0; Raise Price</span><p>Consumer demand exceeds grower supply pressure. A premium price increase is supportable.</p></div>
+          <div class="guide-item"><span class="dec-badge dec-elite">&#x1F331; Elite Only</span><p>High consumer appeal, complex cultivation. Restrict to certified premium growers.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: REGIONAL HEATMAP -->
 <div id="page-heatmap" class="page">
   <div class="page-header">
-    <div class="container">
-      <div class="page-header-inner">
-        <div>
-          <div class="section-eyebrow">REGIONAL INTELLIGENCE</div>
-          <h1 class="page-title">Regional Reputation Heatmap</h1>
-          <p class="page-desc">Visualise how variety reputation scores vary across 8 key global markets. Filter by segment to see consumer, grower, or retailer preference separately.</p>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="time-btn active" id="hmap-btn-overall" onclick="switchHeatmapView(this,'overall')">Overall</button>
-          <button class="time-btn" id="hmap-btn-consumer" onclick="switchHeatmapView(this,'consumer')">Consumer ❤️</button>
-          <button class="time-btn" id="hmap-btn-grower" onclick="switchHeatmapView(this,'grower')">Grower 🌱</button>
-          <button class="time-btn" id="hmap-btn-retailer" onclick="switchHeatmapView(this,'retailer')">Retailer 🏪</button>
-        </div>
-      </div>
+    <h1 class="page-title">Regional Heatmap</h1>
+    <p class="page-desc">Reputation scores for your top 20 varieties across 8 global markets. Switch between Overall, Consumer, Grower and Retailer views.</p>
+  </div>
+  <div id="heatmap-pro-gate" class="pro-gate">
+    <div class="pro-gate-inner">
+      <div class="pro-gate-icon">&#x1F512;</div>
+      <h3>Pro Feature</h3>
+      <p>The Regional Heatmap shows how each variety performs across Netherlands, Germany, France, UK, USA, Japan, Australia and China.</p>
+      <button class="btn-upgrade" onclick="openUpgrade()">Get Pro Access</button>
     </div>
   </div>
-  <div class="container" style="padding-top:32px;padding-bottom:60px;">
+  <div id="heatmap-content" style="display:none">
     <div class="heatmap-controls">
-      <div class="heatmap-filter-row">
-        <label>Crop Category:</label>
-        <select id="hmap-crop" onchange="renderHeatmap()">
-          <option value="">All Categories</option>
-        </select>
-        <label style="margin-left:16px;">Top N varieties:</label>
-        <select id="hmap-topn" onchange="renderHeatmap()">
-          <option value="20">Top 20</option>
-          <option value="30">Top 30</option>
-          <option value="50">Top 50</option>
-        </select>
-      </div>
+      <button class="heatmap-view-btn active" onclick="switchHeatmapView('overall', this)">Overall</button>
+      <button class="heatmap-view-btn" onclick="switchHeatmapView('consumer', this)">Consumer</button>
+      <button class="heatmap-view-btn" onclick="switchHeatmapView('grower', this)">Grower</button>
+      <button class="heatmap-view-btn" onclick="switchHeatmapView('retailer', this)">Retailer</button>
     </div>
     <div class="heatmap-legend">
-      <span class="legend-label">Score:</span>
-      <span class="legend-item" style="background:#166534;color:#fff;">90–100</span>
-      <span class="legend-item" style="background:#16a34a;color:#fff;">75–89</span>
-      <span class="legend-item" style="background:#4ade80;color:#166534;">60–74</span>
-      <span class="legend-item" style="background:#fef08a;color:#713f12;">45–59</span>
-      <span class="legend-item" style="background:#fca5a5;color:#7f1d1d;">30–44</span>
-      <span class="legend-item" style="background:#dc2626;color:#fff;">&lt;30</span>
+      <span class="hl-item" style="background:#15803D;color:#fff">90+</span>
+      <span class="hl-item" style="background:#16A34A;color:#fff">80&ndash;89</span>
+      <span class="hl-item" style="background:#4ADE80;color:#374151">70&ndash;79</span>
+      <span class="hl-item" style="background:#FCD34D;color:#374151">60&ndash;69</span>
+      <span class="hl-item" style="background:#F97316;color:#fff">50&ndash;59</span>
+      <span class="hl-item" style="background:#DC2626;color:#fff">&lt;50</span>
     </div>
-    <div class="heatmap-wrap" id="heatmap-wrap">
-      <div class="heatmap-loading">Loading heatmap data…</div>
-    </div>
+    <div id="heatmap-grid"></div>
   </div>
 </div>
 
-<!-- ===== PAGE: COMPARE ===== -->
+<!-- PAGE: COMPARE -->
 <div id="page-compare" class="page">
   <div class="page-header">
-    <div class="container">
-      <div class="page-header-inner">
-        <div>
-          <div class="section-eyebrow">COMPETITIVE BENCHMARK</div>
-          <h1 class="page-title">Compare Varieties Head-to-Head</h1>
-          <p class="page-desc">Select up to 5 varieties to compare their reputation scores, sentiment, regional performance, and segment scores side by side.</p>
-        </div>
-      </div>
+    <h1 class="page-title">Variety Comparison</h1>
+    <p class="page-desc">Compare up to 5 varieties side-by-side on a radar chart and detailed metrics table.</p>
+  </div>
+  <div id="compare-pro-gate" class="pro-gate">
+    <div class="pro-gate-inner">
+      <div class="pro-gate-icon">&#x1F512;</div>
+      <h3>Pro Feature</h3>
+      <p>Compare varieties head-to-head across Overall, Consumer, Grower, Retailer, Sentiment and Momentum dimensions.</p>
+      <button class="btn-upgrade" onclick="openUpgrade()">Get Pro Access</button>
     </div>
   </div>
-  <div class="container" style="padding-top:32px;padding-bottom:60px;">
-    <div class="compare-search-row">
-      <input type="text" id="compare-search" placeholder="Search variety to add…" oninput="compareSearchInput(this.value)">
-      <button class="btn-primary btn-sm" onclick="compareSearch()">Add to Compare</button>
-      <button class="btn-ghost btn-sm" onclick="clearCompare()">Clear All</button>
+  <div id="compare-content" style="display:none">
+    <div class="compare-search-wrap">
+      <input type="text" id="compare-search" class="compare-search-input" placeholder="Type a variety or crop name to add&hellip;">
+      <div id="compare-dropdown" class="compare-dropdown" style="display:none"></div>
     </div>
-    <div id="compare-suggestions" class="compare-suggestions"></div>
-    <div id="compare-panel" class="compare-panel">
-      <div class="empty-state">
-        <div class="empty-icon">⚖️</div>
-        <div class="empty-title">Add 2–5 varieties to compare</div>
-        <div class="empty-sub">Search above and add varieties to see a side-by-side comparison.</div>
-      </div>
+    <div id="compare-tags" class="compare-tags"></div>
+    <div class="compare-chart-wrap">
+      <div id="compare-empty" class="compare-empty">Add varieties above to begin comparison</div>
+      <canvas id="chart-compare" style="display:none;max-height:400px"></canvas>
     </div>
+    <div id="compare-table" class="compare-table-wrap"></div>
   </div>
 </div>
 
-<!-- ===== PAGE: METHODOLOGY ===== -->
-<div id="page-methodology" class="page">
+<!-- PAGE: PORTFOLIO -->
+<div id="page-portfolio" class="page">
   <div class="page-header">
-    <div class="container">
-      <div class="page-header-inner">
-        <div>
-          <div class="section-eyebrow">TRANSPARENCY</div>
-          <h1 class="page-title">Our Methodology</h1>
-          <p class="page-desc">How we collect, process, and score variety reputation data.</p>
-        </div>
-      </div>
+    <h1 class="page-title">Portfolio Risk Assessment</h1>
+    <p class="page-desc">Build a custom variety portfolio and receive an automated risk score, diversification index and strategic recommendations.</p>
+  </div>
+  <div id="portfolio-pro-gate" class="pro-gate">
+    <div class="pro-gate-inner">
+      <div class="pro-gate-icon">&#x1F512;</div>
+      <h3>Pro Feature</h3>
+      <p>Assess the risk profile of any combination of varieties. Identify concentration risk, phase-out exposure and pricing opportunities.</p>
+      <button class="btn-upgrade" onclick="openUpgrade()">Get Pro Access</button>
     </div>
   </div>
-  <div class="container" style="padding-top:40px;padding-bottom:80px;max-width:860px;">
-    <div class="method-section">
-      <h2>1. Data Collection</h2>
-      <p>Floraputation continuously crawls over 40 public data sources including Instagram, Pinterest, Reddit, Amazon, specialist gardening forums (GardenWeb, UKGardening, etc.), and professional grower communities. Data is collected in real time and stored in a structured pipeline.</p>
+  <div id="portfolio-content" style="display:none">
+    <div class="portfolio-builder">
+      <div class="compare-search-wrap">
+        <input type="text" id="portfolio-search" class="compare-search-input" placeholder="Add varieties to your portfolio&hellip;">
+        <div id="portfolio-dropdown" class="compare-dropdown" style="display:none"></div>
+      </div>
+      <div id="portfolio-tags" class="compare-tags"></div>
+      <button class="btn-analyse" onclick="analysePortfolio()">&#x1F4CA; Analyse Portfolio</button>
     </div>
-    <div class="method-section">
-      <h2>2. Natural Language Processing</h2>
-      <p>Each mention is processed by our NLP engine, which performs entity recognition (identifying the variety name), sentiment classification (positive / neutral / negative), and audience segmentation (consumer, grower, or retailer). The engine supports 12 languages and is fine-tuned on horticultural vocabulary.</p>
-    </div>
-    <div class="method-section">
-      <h2>3. Reputation Score Calculation</h2>
-      <p>The Reputation Score (0–100) is a weighted composite of:</p>
-      <ul class="method-list">
-        <li><strong>Sentiment ratio</strong> (40%) — share of positive vs. negative mentions</li>
-        <li><strong>Mention volume</strong> (25%) — total mentions relative to category average</li>
-        <li><strong>Trend momentum</strong> (20%) — month-over-month change in mention volume</li>
-        <li><strong>Audience breadth</strong> (15%) — diversity of consumer, grower, and retailer mentions</li>
-      </ul>
-    </div>
-    <div class="method-section">
-      <h2>4. Strategic Decision Logic</h2>
-      <table class="method-table">
-        <thead><tr><th>Decision</th><th>Criteria</th></tr></thead>
-        <tbody>
-          <tr><td>🚀 Push &amp; Scale</td><td>Score ≥ 75 AND trend ≥ 0 AND negative sentiment &lt; 20%</td></tr>
-          <tr><td>💰 Raise Price</td><td>Consumer score − Grower score ≥ 15 (demand exceeds supply difficulty)</td></tr>
-          <tr><td>🌿 Elite Growers Only</td><td>Consumer score ≥ 80 AND Grower score ≤ 55 (high demand, high complexity)</td></tr>
-          <tr><td>🛑 Phase Out</td><td>Score &lt; 60 OR trend &lt; −3% for 3+ consecutive months</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="method-section">
-      <h2>5. Data Update Frequency</h2>
-      <p>Scores are recalculated weekly. Trend data is available at 3-month, 6-month, 1-year, and 3-year intervals. Regional breakdowns are updated monthly.</p>
-    </div>
-    <div class="method-section">
-      <h2>6. Limitations &amp; Transparency</h2>
-      <p>Floraputation analyses publicly available online data only. Scores reflect online sentiment and do not capture offline sales data, trial results, or breeder proprietary information. Varieties with fewer than 100 public mentions are excluded from scoring to ensure statistical reliability.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ===== VARIETY DETAIL MODAL ===== -->
-<div id="variety-modal" class="modal-overlay" onclick="closeModal(event)">
-  <div class="modal-box" id="modal-box">
-    <!-- MODAL HEADER -->
-    <div class="modal-header">
-      <div class="modal-header-left">
-        <div class="modal-variety-name" id="modal-name">—</div>
-        <div class="modal-meta-row">
-          <span class="modal-category" id="modal-category">—</span>
-          <span class="modal-series" id="modal-series"></span>
-          <span class="modal-signal" id="modal-signal"></span>
+    <div id="portfolio-empty" class="compare-empty">Add at least 2 varieties and click Analyse Portfolio</div>
+    <div id="portfolio-results" style="display:none">
+      <div class="port-kpis">
+        <div class="port-kpi"><div class="port-kpi-num" id="port-avg-score">0</div><div class="port-kpi-label">Avg. Reputation Score</div></div>
+        <div class="port-kpi"><div class="port-kpi-num" id="port-risk-score">0%</div><div class="port-kpi-label" id="port-risk-level">Portfolio Risk</div></div>
+        <div class="port-kpi"><div class="port-kpi-num" id="port-diversity">0%</div><div class="port-kpi-label">Diversification Index</div></div>
+        <div class="port-kpi"><div class="port-kpi-num" id="port-trend">0%</div><div class="port-kpi-label">Avg. Trend</div></div>
+      </div>
+      <div class="port-layout">
+        <div class="port-chart-wrap">
+          <h4>Consumer vs. Grower Score (bubble size = mentions)</h4>
+          <canvas id="chart-portfolio" style="height:320px"></canvas>
         </div>
-      </div>
-      <div class="modal-header-right">
-        <div id="modal-decision-badges"></div>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-    </div>
-
-    <!-- FREE TIER: basic info only -->
-    <div id="modal-free-tier" class="modal-free-tier">
-      <div class="free-score-row">
-        <div class="free-score-block">
-          <div class="free-score-label">Reputation Score</div>
-          <div class="free-score-num" id="free-score-num">—</div>
-          <div class="free-score-verdict" id="free-score-verdict">—</div>
+        <div class="port-recs-wrap">
+          <h4>Strategic Recommendations</h4>
+          <div id="port-recommendations"></div>
         </div>
-        <div class="free-sentiment-block">
-          <div class="free-score-label">Sentiment</div>
-          <div class="free-sent-bars">
-            <div class="free-sent-row"><span>Positive</span><div class="free-bar-bg"><div class="free-bar-fill" id="free-bar-pos" style="width:0%;background:#16a34a"></div></div><span id="free-pct-pos">—</span></div>
-            <div class="free-sent-row"><span>Neutral</span><div class="free-bar-bg"><div class="free-bar-fill" id="free-bar-neu" style="width:0%;background:#9ca3af"></div></div><span id="free-pct-neu">—</span></div>
-            <div class="free-sent-row"><span>Negative</span><div class="free-bar-bg"><div class="free-bar-fill" id="free-bar-neg" style="width:0%;background:#dc2626"></div></div><span id="free-pct-neg">—</span></div>
-          </div>
-          <div class="free-mentions" id="free-mentions">—</div>
-        </div>
-      </div>
-      <div class="free-upgrade-banner">
-        <div class="upgrade-banner-inner">
-          <div class="upgrade-banner-icon">🔒</div>
-          <div>
-            <div class="upgrade-banner-title">Pro data unlocks full intelligence</div>
-            <div class="upgrade-banner-sub">Segment scores · Regional breakdown · AI strategy insights · Competitive benchmark · Trend charts · Quarterly export</div>
-          </div>
-          <button class="btn-primary" onclick="showUpgradeModal()">Get Pro Access</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PRO TIER: full data -->
-    <div id="modal-pro-tier" class="modal-pro-tier" style="display:none;">
-      <!-- SCORES ROW -->
-      <div class="score-panel-row">
-        <div class="score-card score-main">
-          <div class="card-title">Reputation Score</div>
-          <div class="score-ring-wrap">
-            <canvas id="modal-ring-canvas" width="140" height="140"></canvas>
-            <div class="score-ring-inner">
-              <span class="score-number" id="modal-score-num"></span>
-              <span class="score-label-sm">/100</span>
-            </div>
-          </div>
-          <div class="score-verdict" id="modal-verdict"></div>
-          <div class="score-trend-row">
-            <span id="modal-trend-val"></span>
-            <span class="trend-period">vs. 12M ago</span>
-          </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;" id="modal-mentions-text"></div>
-        </div>
-        <div class="score-card">
-          <div class="card-title">Sentiment Breakdown</div>
-          <div class="sentiment-bars">
-            <div class="sent-row"><span class="sent-label">Positive</span><div class="sent-bar-wrap"><div class="sent-bar sent-pos" id="sbar-pos" style="width:0%"></div></div><span class="sent-pct" id="spct-pos"></span></div>
-            <div class="sent-row"><span class="sent-label">Neutral</span><div class="sent-bar-wrap"><div class="sent-bar sent-neu" id="sbar-neu" style="width:0%"></div></div><span class="sent-pct" id="spct-neu"></span></div>
-            <div class="sent-row"><span class="sent-label">Negative</span><div class="sent-bar-wrap"><div class="sent-bar sent-neg" id="sbar-neg" style="width:0%"></div></div><span class="sent-pct" id="spct-neg"></span></div>
-          </div>
-          <div class="mentions-stat"><span class="mentions-num" id="modal-mentions-num"></span><span class="mentions-lbl">total mentions</span></div>
-          <div class="confidence-row"><span class="conf-label">Data Confidence</span><div class="conf-bar-wrap"><div class="conf-bar" id="conf-bar" style="width:0%"></div></div><span class="conf-pct" id="conf-pct"></span></div>
-        </div>
-        <div class="score-card">
-          <div class="card-title">Segment Scores</div>
-          <div class="cvg-row">
-            <div class="cvg-block">
-              <div class="cvg-icon">🛒</div>
-              <div class="cvg-score" id="seg-consumer"></div>
-              <div class="cvg-label">Consumer</div>
-            </div>
-            <div class="cvg-vs">vs</div>
-            <div class="cvg-block">
-              <div class="cvg-icon">🌱</div>
-              <div class="cvg-score cvg-score-grower" id="seg-grower"></div>
-              <div class="cvg-label">Grower</div>
-            </div>
-            <div class="cvg-vs">vs</div>
-            <div class="cvg-block">
-              <div class="cvg-icon">🏪</div>
-              <div class="cvg-score" id="seg-retailer"></div>
-              <div class="cvg-label">Retailer</div>
-            </div>
-          </div>
-          <div class="cvg-gap-note" id="cg-gap-note"></div>
-          <div style="margin-top:12px;" id="modal-decision-badges-pro"></div>
-        </div>
-      </div>
-
-      <!-- CHARTS ROW -->
-      <div class="chart-row">
-        <div class="chart-card">
-          <div class="chart-card-header">
-            <span class="card-title" style="margin-bottom:0;">Monthly Mention Volume</span>
-            <div class="time-toggle-group">
-              <button class="time-btn active" onclick="switchPeriod(this,'3m')">3M</button>
-              <button class="time-btn" onclick="switchPeriod(this,'6m')">6M</button>
-              <button class="time-btn" onclick="switchPeriod(this,'1y')">1Y</button>
-              <button class="time-btn" onclick="switchPeriod(this,'3y')">3Y</button>
-            </div>
-          </div>
-          <canvas id="chart-mentions" height="160"></canvas>
-        </div>
-        <div class="chart-card">
-          <div class="chart-card-header">
-            <span class="card-title" style="margin-bottom:0;">Consumer vs. Grower vs. Retailer</span>
-          </div>
-          <canvas id="chart-segments" height="160"></canvas>
-        </div>
-      </div>
-
-      <!-- REGIONAL TABLE -->
-      <div class="region-table-wrap">
-        <div class="region-table-header">
-          <div class="card-title" style="margin-bottom:0;">Regional Performance</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="time-btn active" onclick="switchRegionView(this,'overall')">Overall</button>
-            <button class="time-btn" onclick="switchRegionView(this,'consumer')">Consumer ❤️</button>
-            <button class="time-btn" onclick="switchRegionView(this,'grower')">Grower 🌱</button>
-            <button class="time-btn" onclick="switchRegionView(this,'retailer')">Retailer 🏪</button>
-          </div>
-        </div>
-        <table class="region-table">
-          <thead>
-            <tr>
-              <th>Region</th><th>Overall</th><th>Consumer ❤️</th><th>Grower 🌱</th><th>Retailer 🏪</th><th>Mentions</th><th>Trend</th><th>Signal</th>
-            </tr>
-          </thead>
-          <tbody id="region-tbody"></tbody>
-        </table>
-      </div>
-
-      <!-- AI STRATEGY INSIGHTS -->
-      <div style="margin-top:24px;">
-        <div class="card-title">AI Strategy Insights</div>
-        <div class="ai-insights-grid" id="ai-insights-grid"></div>
-      </div>
-
-      <!-- COMPETITIVE BENCHMARK -->
-      <div class="chart-card" style="margin-top:16px;">
-        <div class="card-title" id="benchmark-title">Competitive Benchmark</div>
-        <div class="card-desc" id="benchmark-desc" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;"></div>
-        <canvas id="chart-benchmark" height="140"></canvas>
-      </div>
-
-      <!-- DEEP DIVE -->
-      <div class="cvg-deep-wrap" style="margin-top:16px;">
-        <div class="card-title">Consumer vs. Grower Deep Dive</div>
-        <div class="cvg-deep-row">
-          <div>
-            <div class="cvg-deep-header consumer-header">🛒 What Consumers Love</div>
-            <div id="consumer-dims"></div>
-          </div>
-          <div>
-            <div class="cvg-deep-header grower-header">🌱 What Growers Struggle With</div>
-            <div id="grower-dims"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODAL ACTIONS -->
-      <div class="modal-actions-row">
-        <button class="btn-ghost" onclick="addToCompare(currentModalId)">+ Add to Compare</button>
-        <button class="btn-ghost" onclick="addToPortfolio(currentModalId)">+ Add to Portfolio</button>
-        <button class="btn-primary" onclick="exportVarietyReport()">📄 Export Report</button>
-      </div>
-    </div><!-- /modal-pro-tier -->
-
-  </div><!-- /modal-box -->
-</div><!-- /variety-modal -->
-
-<!-- ===== LOGIN MODAL ===== -->
-<div id="login-modal" class="modal-overlay" onclick="closeLoginModal(event)">
-  <div class="modal-box modal-box-sm">
-    <div class="modal-header">
-      <div class="modal-variety-name">Sign In to Floraputation</div>
-      <button class="modal-close" onclick="closeLoginModal()">✕</button>
-    </div>
-    <div style="padding:24px;">
-      <div class="form-group">
-        <label class="form-label">Email Address</label>
-        <input type="email" id="login-email" class="form-input" placeholder="your@company.com">
-      </div>
-      <div class="form-group" style="margin-top:16px;">
-        <label class="form-label">Password</label>
-        <input type="password" id="login-password" class="form-input" placeholder="••••••••">
-      </div>
-      <div id="login-error" class="login-error" style="display:none;"></div>
-      <button class="btn-primary" style="width:100%;margin-top:20px;" onclick="doLogin()">Sign In</button>
-      <div class="login-footer">
-        <p>Don't have Pro access yet? <a href="#" onclick="closeLoginModal();showUpgradeModal();">Contact us to get started →</a></p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== UPGRADE MODAL ===== -->
-<div id="upgrade-modal" class="modal-overlay" onclick="closeUpgradeModal(event)">
-  <div class="modal-box modal-box-sm">
+<!-- VARIETY MODAL -->
+<div id="variety-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeVarietyModal()">&#x2715;</button>
     <div class="modal-header">
-      <div class="modal-variety-name">Get Floraputation Pro Access</div>
-      <button class="modal-close" onclick="closeUpgradeModal()">✕</button>
-    </div>
-    <div style="padding:24px;">
-      <p style="color:var(--text-secondary);margin-bottom:20px;">Floraputation Pro is designed for professional breeding companies. To request access, simply send us an email and we will set up your account within 24 hours.</p>
-      <div class="upgrade-features-list">
-        <div class="upgrade-feat">✅ Full variety intelligence (all 523 varieties)</div>
-        <div class="upgrade-feat">✅ Decision Hub — Push / Phase Out / Raise Price / Elite Growers</div>
-        <div class="upgrade-feat">✅ Portfolio risk assessment</div>
-        <div class="upgrade-feat">✅ Regional heatmap (8 markets, 3 segments)</div>
-        <div class="upgrade-feat">✅ AI strategy insights per variety</div>
-        <div class="upgrade-feat">✅ Competitive benchmark charts</div>
-        <div class="upgrade-feat">✅ Quarterly business report export</div>
-        <div class="upgrade-feat">✅ 3-year historical trend data</div>
+      <div class="modal-title-wrap">
+        <h2 id="modal-name">Loading&hellip;</h2>
+        <div id="modal-crop" class="modal-crop-label"></div>
+        <div id="modal-decision"></div>
       </div>
-      <a href="mailto:yaoshelley65@gmail.com?subject=Floraputation Pro Access Request&body=Hello,%0A%0AI would like to request Pro access to Floraputation.%0A%0ACompany name:%0AContact name:%0AEmail:%0A%0AThank you." class="btn-primary" style="display:block;text-align:center;margin-top:24px;padding:14px;font-size:15px;">
-        📧 Contact Us: yaoshelley65@gmail.com
-      </a>
-      <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:12px;">Already have an account? <a href="#" onclick="closeUpgradeModal();showLoginModal();">Sign in here</a></p>
+      <div class="modal-score-block">
+        <canvas id="modal-ring-canvas" width="140" height="140"></canvas>
+        <div class="modal-score-overlay">
+          <div class="modal-score-num" id="modal-score-val">0</div>
+          <div class="modal-score-grade" id="modal-score-grade">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-basic">
+      <div class="modal-stat-row">
+        <span id="modal-trend"></span>
+        <span id="modal-mentions"></span>
+        <span id="modal-confidence"></span>
+      </div>
+      <div class="modal-sentiment">
+        <div class="sent-bar">
+          <div class="sent-pos" id="modal-sent-pos" style="width:0%"></div>
+          <div class="sent-neu" id="modal-sent-neu" style="width:0%"></div>
+          <div class="sent-neg" id="modal-sent-neg" style="width:0%"></div>
+        </div>
+        <div class="sent-labels">
+          <span class="pos" id="modal-sent-pos-val"></span>
+          <span class="neu" id="modal-sent-neu-val"></span>
+          <span class="neg" id="modal-sent-neg-val"></span>
+        </div>
+      </div>
+    </div>
+    <!-- Free gate -->
+    <div id="modal-free-gate" style="display:none">
+      <div class="free-gate-inner">
+        <div class="free-gate-icon">&#x1F512;</div>
+        <h4>Unlock Full Intelligence</h4>
+        <p>Pro subscribers see the complete analysis for this variety:</p>
+        <div class="free-gate-features">
+          <span>&#x1F6D2; Consumer Score</span>
+          <span>&#x1F331; Grower Score</span>
+          <span>&#x1F3EA; Retailer Score</span>
+          <span>&#x1F30D; Regional breakdown</span>
+          <span>&#x1F4C8; Trend charts</span>
+          <span>&#x1F9E0; AI strategy insights</span>
+          <span>&#x1F3AF; Competitive benchmark</span>
+          <span>&#x1F4E5; Quarterly export</span>
+        </div>
+        <button class="btn-upgrade" onclick="closeVarietyModal();openUpgrade()">Get Pro Access</button>
+      </div>
+    </div>
+    <!-- Pro content -->
+    <div id="modal-pro-content" style="display:none">
+      <div class="modal-section">
+        <h4 class="section-label">Audience Segment Scores</h4>
+        <div class="segment-scores">
+          <div class="seg-card seg-consumer"><div class="seg-num" id="modal-consumer-score">0</div><div class="seg-label">&#x1F6D2; Consumer</div></div>
+          <div class="seg-card seg-grower"><div class="seg-num" id="modal-grower-score">0</div><div class="seg-label">&#x1F331; Grower</div></div>
+          <div class="seg-card seg-retailer"><div class="seg-num" id="modal-retailer-score">0</div><div class="seg-label">&#x1F3EA; Retailer</div></div>
+        </div>
+        <div id="modal-cvg-gap"></div>
+      </div>
+      <div class="modal-section">
+        <div class="section-label-row">
+          <h4 class="section-label">Monthly Mentions</h4>
+          <div class="period-btns">
+            <button class="period-btn" onclick="switchPeriod('3m',this)">3M</button>
+            <button class="period-btn" onclick="switchPeriod('6m',this)">6M</button>
+            <button class="period-btn active" onclick="switchPeriod('1y',this)">1Y</button>
+            <button class="period-btn" onclick="switchPeriod('3y',this)">3Y</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-mentions"></canvas></div>
+      </div>
+      <div class="modal-section">
+        <h4 class="section-label">Consumer vs. Grower vs. Retailer Trend</h4>
+        <div class="chart-wrap"><canvas id="chart-segments"></canvas></div>
+      </div>
+      <div class="modal-section">
+        <h4 class="section-label">Regional Performance</h4>
+        <div class="region-table-wrap">
+          <table class="region-table">
+            <thead><tr><th>Market</th><th>Overall</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Mentions</th><th>Trend</th><th>Signal</th></tr></thead>
+            <tbody id="region-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4 class="section-label">AI Strategy Insights</h4>
+        <div class="insights-grid" id="ai-insights-grid"></div>
+      </div>
+      <div class="modal-section">
+        <h4 class="section-label">Competitive Benchmark (same crop)</h4>
+        <div class="chart-wrap"><canvas id="chart-benchmark"></canvas></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ===== FOOTER ===== -->
+<!-- SIGN IN MODAL -->
+<div id="signin-modal" class="modal-overlay">
+  <div class="modal-box modal-small">
+    <button class="modal-close" onclick="closeSignIn()">&#x2715;</button>
+    <h3 class="modal-form-title">Sign In to Floraputation Pro</h3>
+    <p class="modal-form-sub">Enter your Pro account credentials to access the full intelligence suite.</p>
+    <div class="form-group"><label>Email address</label><input type="email" id="signin-email" placeholder="you@company.com" autocomplete="email"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="signin-pass" placeholder="Your password"></div>
+    <div class="form-error" id="signin-error"></div>
+    <button class="btn-form-submit" onclick="doSignIn()">Sign In</button>
+    <p class="form-footer">Not a Pro subscriber yet? <a href="#" onclick="closeSignIn();openUpgrade();return false;">Get Pro Access</a></p>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div id="upgrade-modal" class="modal-overlay">
+  <div class="modal-box modal-small">
+    <button class="modal-close" onclick="closeUpgrade()">&#x2715;</button>
+    <div class="upgrade-icon">&#x1F338;</div>
+    <h3 class="modal-form-title">Get Floraputation Pro</h3>
+    <p class="modal-form-sub">Floraputation Pro gives your breeding team the intelligence to make faster, more confident portfolio decisions.</p>
+    <div class="upgrade-features">
+      <div class="uf-item">&#x2714; Consumer, Grower &amp; Retailer scores per variety</div>
+      <div class="uf-item">&#x2714; Regional heatmap across 8 global markets</div>
+      <div class="uf-item">&#x2714; AI strategy insights &amp; competitive benchmark</div>
+      <div class="uf-item">&#x2714; Decision Hub: full portfolio view</div>
+      <div class="uf-item">&#x2714; Portfolio risk assessment</div>
+      <div class="uf-item">&#x2714; Quarterly report export</div>
+    </div>
+    <div class="upgrade-cta-block">
+      <p>To request Pro access, please contact us directly:</p>
+      <a class="btn-email-cta" href="mailto:yaoshelley65@gmail.com?subject=Floraputation Pro Access Request">&#x2709;&#xFE0F; yaoshelley65@gmail.com</a>
+      <p class="upgrade-note">We will set up your account and send login credentials within 1 business day.</p>
+    </div>
+    <p class="form-footer">Already have an account? <a href="#" onclick="closeUpgrade();openSignIn();return false;">Sign In</a></p>
+  </div>
+</div>
+
+<!-- FOOTER -->
 <footer class="site-footer">
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <span class="logo-leaf">🌿</span>
-        <span style="font-weight:700;color:var(--green-dark);">Floraputation</span>
-        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">Variety Reputation Intelligence</span>
-      </div>
-      <div class="footer-links">
-        <a href="#" onclick="showPage('methodology')">Methodology</a>
-        <a href="mailto:yaoshelley65@gmail.com">Contact</a>
-        <a href="#" onclick="showUpgradeModal()">Pro Access</a>
-      </div>
-      <div style="font-size:12px;color:var(--text-muted);">© 2026 Floraputation. All rights reserved.</div>
-    </div>
+  <div class="footer-inner">
+    <div class="footer-brand"><span class="logo-leaf">&#x1F33F;</span> <strong>Floraputation</strong></div>
+    <div class="footer-text">Real-time variety reputation intelligence &mdash; built for flower breeders.</div>
+    <div class="footer-contact">Questions? <a href="mailto:yaoshelley65@gmail.com">yaoshelley65@gmail.com</a></div>
   </div>
 </footer>
 
