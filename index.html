@@ -669,7 +669,7 @@ input{font-family:inherit;font-size:inherit}
     grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3)">&#x1F50D; Searching database...</div>';
 
     var ql=encodeURIComponent(q);
-    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+ql+'*,crop.ilike.*'+ql+'*,series.ilike.*'+ql+'*)&select=id,variety,crop,series,company,source_url&limit=100&order=variety.asc';
+    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+ql+'*,crop.ilike.*'+ql+'*,series.ilike.*'+ql+'*,company.ilike.*'+ql+'*)&select=id,variety,crop,series,company,source_url&limit=100&order=variety.asc';
 
     fetch(url,{
       headers:{
