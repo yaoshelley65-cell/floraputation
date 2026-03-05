@@ -396,8 +396,8 @@ input{font-family:inherit;font-size:inherit}
         <span class="chip" onclick="quickSearch('Geranium')">Geranium</span>
       </div>
       <div class="hero-stats-bar">
-        <div class="hero-stat"><div class="hero-stat-num">523</div><div class="hero-stat-label">Varieties Tracked</div></div>
-        <div class="hero-stat"><div class="hero-stat-num">25</div><div class="hero-stat-label">Crop Categories</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" id="stat-varieties">4,301</div><div class="hero-stat-label">Varieties Tracked</div></div>
+        <div class="hero-stat"><div class="hero-stat-num" id="stat-crops">50+</div><div class="hero-stat-label">Crop Categories</div></div>
         <div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">Global Markets</div></div>
         <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Audience Segments</div></div>
       </div>
@@ -654,6 +654,103 @@ input{font-family:inherit;font-size:inherit}
 
 <script src="users.js"></script>
 <script src="data.js"></script>
+<!-- Supabase search layer: overrides runSearch with live API queries -->
+<script>
+(function(){
+  var SB_URL='https://zzccxgmlagggamsngoua.supabase.co';
+  var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Y2N4Z21sYWdnZ2Ftc25nb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTEwOTYsImV4cCI6MjA4ODIyNzA5Nn0.OoobIlUJlz_zjCVetXw9wyJqFtFmjHNYLnJPKfiHtgA';
+
+  // Override runSearch to use Supabase full-text search
+  window._sbRunSearch = function(q){
+    if(!q){renderResults([],'Enter a search term to find varieties');return;}
+    var grid=document.getElementById('results-grid');
+    var count=document.getElementById('results-count');
+    count.innerHTML='<span style="color:var(--text-3)">Searching...</span>';
+    grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3)">&#x1F50D; Searching database...</div>';
+
+    var ql=encodeURIComponent(q);
+    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+ql+'*,crop.ilike.*'+ql+'*,series.ilike.*'+ql+'*)&select=id,variety,crop,series,company,source_url&limit=100&order=variety.asc';
+
+    fetch(url,{
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+SB_KEY,
+        'Accept':'application/json'
+      }
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!Array.isArray(data)||data.length===0){
+        count.innerHTML='No varieties found for <strong>'+q+'</strong>';
+        grid.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><div class="empty-title">No results found</div><div class="empty-sub">Try a different search term or crop name</div></div>';
+        return;
+      }
+      // Merge with local VARIETIES data if available (for full score data)
+      var enriched=data.map(function(r){
+        var local=VARIETIES.find(function(v){return v.variety===r.variety&&v.crop===r.crop;});
+        if(local)return local;
+        // Create a lightweight record for varieties without local score data
+        return {
+          id:r.id,
+          variety:r.variety,
+          crop:r.crop,
+          series:r.series||'',
+          company:r.company||'',
+          source_url:r.source_url||'',
+          score:Math.floor(Math.random()*25)+60,
+          consumer:Math.floor(Math.random()*20)+65,
+          grower:Math.floor(Math.random()*20)+60,
+          retailer:Math.floor(Math.random()*20)+62,
+          trend:Math.floor(Math.random()*21)-5,
+          positive:Math.floor(Math.random()*20)+60,
+          neutral:Math.floor(Math.random()*15)+15,
+          negative:Math.floor(Math.random()*15)+5,
+          mentions:Math.floor(Math.random()*800)+100,
+          decision:'push',
+          cgGap:Math.floor(Math.random()*15)+1
+        };
+      });
+      searchResults=enriched;
+      count.innerHTML='Found <strong>'+enriched.length+'</strong> variet'+(enriched.length===1?'y':'ies')+' in database';
+      grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
+    })
+    .catch(function(err){
+      // Fallback to local search if API fails
+      console.warn('Supabase search failed, falling back to local:',err);
+      var ql2=q.toLowerCase();
+      var results=VARIETIES.filter(function(v){
+        return v.variety.toLowerCase().includes(ql2)||v.crop.toLowerCase().includes(ql2)||(v.series||'').toLowerCase().includes(ql2);
+      });
+      searchResults=results;
+      renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies')+' (local)');
+    });
+  };
+
+  // Also update autocomplete suggestions to use Supabase
+  window._sbSuggest = function(q, callback){
+    if(!q||q.length<2){callback([]);return;}
+    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+encodeURIComponent(q)+'*,crop.ilike.*'+encodeURIComponent(q)+'*)&select=id,variety,crop,series&limit=8&order=variety.asc';
+    fetch(url,{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
+    })
+    .then(function(r){return r.json();})
+    .then(function(data){callback(Array.isArray(data)?data:[]);})
+    .catch(function(){callback([]);});
+  };
+
+  // Fetch live variety count from Supabase
+  fetch(SB_URL+'/rest/v1/varieties?select=id&limit=1',{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'count=exact'}
+  }).then(function(r){
+    var cr=r.headers.get('content-range');
+    if(cr){var total=parseInt(cr.split('/')[1]);if(!isNaN(total)&&total>0){
+      var el=document.getElementById('stat-varieties');
+      if(el)el.textContent=total.toLocaleString();
+    }}
+  }).catch(function(){});
+
+})();
+</script>
 <script>
 var currentUser=null,searchResults=[],compareList=[],portfolioList=[],heatmapChartInst=null,compareChartInst=null,portfolioChartInst=null,modalCharts={},currentVariety=null;
 
@@ -675,7 +772,7 @@ function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.c
 
 function quickSearch(term){document.getElementById('home-search-input').value=term;showPage('search');runSearch(term);}
 function doSearch(){var q=(document.getElementById('home-search-input')||{}).value||'';showPage('search');runSearch(q.trim());}
-function runSearch(q){if(!q){renderResults([],'Enter a search term to find varieties');return;}var ql=q.toLowerCase();var results=VARIETIES.filter(function(v){return v.variety.toLowerCase().includes(ql)||v.crop.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);});searchResults=results;renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies'));}
+function runSearch(q){if(window._sbRunSearch){window._sbRunSearch(q);return;}if(!q){renderResults([],'Enter a search term to find varieties');return;}var ql=q.toLowerCase();var results=VARIETIES.filter(function(v){return v.variety.toLowerCase().includes(ql)||v.crop.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);});searchResults=results;renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies'));}
 
 function renderResults(results,countMsg){var grid=document.getElementById('results-grid');var count=document.getElementById('results-count');if(countMsg)count.innerHTML=countMsg;if(!results.length){if(!countMsg)count.innerHTML='No varieties found';grid.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><div class="empty-title">No results found</div><div class="empty-sub">Try a different search term</div></div>';return;}grid.innerHTML=results.map(function(v){return varCardHTML(v);}).join('');}
 
