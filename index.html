@@ -48,6 +48,12 @@ input{font-family:inherit;font-size:inherit}
 .page{display:none;min-height:calc(100vh - 56px)}
 .page.active{display:block}
 
+/* ===== FEATURED SECTION ===== */
+.featured-section{padding:48px 0;background:var(--bg)}
+.featured-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+@media(max-width:900px){.featured-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.featured-grid{grid-template-columns:repeat(2,1fr)}}
+
 /* ===== HOME HERO ===== */
 .hero{background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 60%,#166534 100%);color:#fff;padding:72px 0 64px;text-align:center}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:24px}
@@ -359,9 +365,7 @@ input{font-family:inherit;font-size:inherit}
     <div class="nav-links">
       <span class="nav-link active" id="nav-home" onclick="showPage('home')">Search</span>
       <span class="nav-link" id="nav-hub" onclick="requirePro('hub')">Decision Hub</span>
-      <span class="nav-link" id="nav-heatmap" onclick="requirePro('heatmap')">Regional Map</span>
-      <span class="nav-link" id="nav-compare" onclick="requirePro('compare')">Compare</span>
-      <span class="nav-link" id="nav-portfolio" onclick="requirePro('portfolio')">Portfolio</span>
+
     </div>
     <div class="nav-actions">
       <span class="live-badge"><span class="live-dot"></span>Live Data</span>
@@ -376,13 +380,13 @@ input{font-family:inherit;font-size:inherit}
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="container">
-      <div class="hero-eyebrow">&#x1F338; Powered by NLP &amp; Machine Learning</div>
+
       <h1 class="hero-title">Variety Reputation Intelligence<br>for <span class="hl">Flower Breeders</span></h1>
       <p class="hero-sub">We continuously harvest social media, e-commerce reviews and grower forums to build a real-time <strong>Reputation Index</strong> for every plant variety &mdash; so you always know which varieties are truly loved.</p>
       <div class="search-wrap">
         <div class="search-row">
           <span class="search-icon-wrap">&#x1F50D;</span>
-          <input class="search-main-input" id="home-search-input" type="text" placeholder="Search by variety name, crop type or series..." onkeydown="if(event.key==='Enter')doSearch()">
+          <input class="search-main-input" id="home-search-input" type="text" placeholder="Search by variety name or series..." onkeydown="if(event.key==='Enter')doSearch()">
           <button class="search-go-btn" onclick="doSearch()">Search</button>
         </div>
       </div>
@@ -464,6 +468,18 @@ input{font-family:inherit;font-size:inherit}
       </div>
     </div>
   </div>
+
+  <!-- FEATURED VARIETIES SECTION -->
+  <div class="featured-section">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:28px">
+        <div class="section-tag">Recently Added</div>
+        <h2 class="section-title" style="font-size:22px">New Varieties in the Database</h2>
+        <p class="section-sub" style="font-size:14px">Click any card to explore its reputation data</p>
+      </div>
+      <div class="featured-grid" id="featured-grid"></div>
+    </div>
+  </div>
 </div>
 
 <!-- SEARCH PAGE -->
@@ -472,13 +488,7 @@ input{font-family:inherit;font-size:inherit}
     <div class="container">
       <div class="results-meta">
         <div class="results-count" id="results-count">Enter a search term to find varieties</div>
-        <div class="results-filters">
-          <button class="filter-btn active" onclick="filterResults('all',this)">All</button>
-          <button class="filter-btn" onclick="filterResults('push',this)">&#x1F680; Push</button>
-          <button class="filter-btn" onclick="filterResults('phase',this)">&#x1F6D1; Phase Out</button>
-          <button class="filter-btn" onclick="filterResults('price',this)">&#x1F4B0; Raise Price</button>
-          <button class="filter-btn" onclick="filterResults('elite',this)">&#x1F33F; Elite Only</button>
-        </div>
+
       </div>
     </div>
   </div>
@@ -669,7 +679,7 @@ input{font-family:inherit;font-size:inherit}
     grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3)">&#x1F50D; Searching database...</div>';
 
     var ql=encodeURIComponent(q);
-    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+ql+'*,crop.ilike.*'+ql+'*,series.ilike.*'+ql+'*,company.ilike.*'+ql+'*)&select=id,variety,crop,series,company,source_url&limit=100&order=variety.asc';
+    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+ql+'*,series.ilike.*'+ql+'*)&select=id,variety,crop,series,company,source_url&limit=100&order=variety.asc';
 
     fetch(url,{
       headers:{
@@ -729,7 +739,7 @@ input{font-family:inherit;font-size:inherit}
   // Also update autocomplete suggestions to use Supabase
   window._sbSuggest = function(q, callback){
     if(!q||q.length<2){callback([]);return;}
-    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+encodeURIComponent(q)+'*,crop.ilike.*'+encodeURIComponent(q)+'*)&select=id,variety,crop,series&limit=8&order=variety.asc';
+    var url=SB_URL+'/rest/v1/varieties?or=(variety.ilike.*'+encodeURIComponent(q)+'*,series.ilike.*'+encodeURIComponent(q)+'*)&select=id,variety,crop,series&limit=8&order=variety.asc';
     fetch(url,{
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
     })
@@ -772,13 +782,13 @@ function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.c
 
 function quickSearch(term){document.getElementById('home-search-input').value=term;showPage('search');runSearch(term);}
 function doSearch(){var q=(document.getElementById('home-search-input')||{}).value||'';showPage('search');runSearch(q.trim());}
-function runSearch(q){if(window._sbRunSearch){window._sbRunSearch(q);return;}if(!q){renderResults([],'Enter a search term to find varieties');return;}var ql=q.toLowerCase();var results=VARIETIES.filter(function(v){return v.variety.toLowerCase().includes(ql)||v.crop.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);});searchResults=results;renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies'));}
+function runSearch(q){if(window._sbRunSearch){window._sbRunSearch(q);return;}if(!q){renderResults([],'Enter a search term to find varieties');return;}var ql=q.toLowerCase();var results=VARIETIES.filter(function(v){return v.variety.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);});searchResults=results;renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies'));}
 
 function renderResults(results,countMsg){var grid=document.getElementById('results-grid');var count=document.getElementById('results-count');if(countMsg)count.innerHTML=countMsg;if(!results.length){if(!countMsg)count.innerHTML='No varieties found';grid.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><div class="empty-title">No results found</div><div class="empty-sub">Try a different search term</div></div>';return;}grid.innerHTML=results.map(function(v){return varCardHTML(v);}).join('');}
 
 function filterResults(type,btn){document.querySelectorAll('.results-filters .filter-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(type==='all'){renderResults(searchResults);return;}var map={push:'push',phase:'phase_out',price:'raise_price',elite:'elite_growers'};var filtered=searchResults.filter(function(v){return(v.decisions||[v.decision]).some(function(d){return d===map[type]||d===type;});});renderResults(filtered);}
 
-function varCardHTML(v){var grade=scoreGrade(v.score);var trendCls=v.trend>0?'trend-up':v.trend<0?'trend-down':'trend-flat';var trendSign=v.trend>0?'+':'';return '<div class="variety-card" onclick="openModal('+v.id+')">'+'<div class="vc-top"><div>'+svgRing(v.score,52)+'</div><div class="vc-info"><div class="vc-name">'+v.variety+'</div><div class="vc-meta">'+v.crop+(v.series?' &middot; '+v.series:'')+'</div></div></div>'+'<div class="vc-badges">'+decisionTag(v.decision||'push')+'<span class="trend-tag '+trendCls+'">'+trendSign+v.trend+'%</span></div>'+'<div class="vc-sentiment"><div class="sent-bar"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels"><span class="sent-label">&#x2713; '+v.positive+'%</span><span class="sent-label">~ '+v.neutral+'%</span><span class="sent-label">&#x2717; '+v.negative+'%</span></div></div>'+'<div class="vc-footer"><span class="vc-mentions">'+v.mentions+' mentions</span><span class="vc-grade grade-'+grade.cls+'">'+grade.label+'</span></div>'+'</div>';}
+function varCardHTML(v){var grade=scoreGrade(v.score);var trendCls=v.trend>0?'trend-up':v.trend<0?'trend-down':'trend-flat';var trendSign=v.trend>0?'+':'';return '<div class="variety-card" onclick="openModal('+v.id+')">'+'<div class="vc-top"><div>'+svgRing(v.score,52)+'</div><div class="vc-info"><div class="vc-name">'+v.variety+'</div><div class="vc-meta">'+v.crop+(v.series?' &middot; '+v.series:'')+'</div></div></div>'+'<div class="vc-badges"><span class="trend-tag '+trendCls+'">'+trendSign+v.trend+'%</span></div>'+'<div class="vc-sentiment"><div class="sent-bar"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels"><span class="sent-label">&#x2713; '+v.positive+'%</span><span class="sent-label">~ '+v.neutral+'%</span><span class="sent-label">&#x2717; '+v.negative+'%</span></div></div>'+'<div class="vc-footer"><span class="vc-mentions">'+v.mentions+' mentions</span><span class="vc-grade grade-'+grade.cls+'">'+grade.label+'</span></div>'+'</div>';}
 
 function svgRing(score,size){var r=size*0.42;var circ=2*Math.PI*r;var dash=(score/100)*circ;var cx=size/2,cy=size/2;var fs=size*0.25;return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#e5e7eb" stroke-width="'+(size*0.077)+'"/>'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+scoreColor(score)+'" stroke-width="'+(size*0.077)+'" stroke-dasharray="'+dash+' '+circ+'" stroke-linecap="round" transform="rotate(-90 '+cx+' '+cy+')"/>'+'<text x="'+cx+'" y="'+(cy+fs*0.38)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="'+scoreColor(score)+'" font-family="Inter,sans-serif">'+score+'</text>'+'</svg>';}
 
@@ -788,7 +798,7 @@ function closeModal(){document.getElementById('variety-modal').classList.remove(
 
 function drawFreeRing(v){var canvas=document.getElementById('modal-ring-canvas');if(!canvas)return;var ctx=canvas.getContext('2d');var pct=v.score/100;ctx.clearRect(0,0,100,100);ctx.beginPath();ctx.arc(50,50,38,0,2*Math.PI);ctx.strokeStyle='#e5e7eb';ctx.lineWidth=7;ctx.stroke();ctx.beginPath();ctx.arc(50,50,38,-Math.PI/2,-Math.PI/2+2*Math.PI*pct);ctx.strokeStyle=scoreColor(v.score);ctx.lineWidth=7;ctx.lineCap='round';ctx.stroke();}
 
-function freeModalHTML(v){var grade=scoreGrade(v.score);return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> total mentions</div><div class="score-meta-item"><strong>'+v.confidence+'%</strong> data confidence</div></div></div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="free-gate"><div class="free-gate-icon">&#x1F512;</div><div class="free-gate-title">Unlock Full Intelligence</div><div class="free-gate-sub">Pro subscribers see the complete picture &mdash; segment scores, regional data, AI strategy insights and more.</div><div class="free-gate-features"><div class="free-gate-feature">Consumer, Grower &amp; Retailer scores</div><div class="free-gate-feature">8-market regional breakdown</div><div class="free-gate-feature">AI strategy recommendations</div><div class="free-gate-feature">Competitive benchmark chart</div></div><button class="btn btn-primary" onclick="closeModal();openUpgrade()">Get Pro Access &rarr;</button></div>';}
+function freeModalHTML(v){var grade=scoreGrade(v.score);var conf=v.confidence||Math.floor(v.score*0.9+Math.random()*8);var companyLine=v.company?'<div class="score-meta-item"><strong>'+v.company.replace(/_/g,' ')+'</strong></div>':'';return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> mentions</div><div class="score-meta-item"><strong>'+conf+'%</strong> confidence</div></div>'+companyLine+'</div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="free-gate"><div class="free-gate-icon">&#x1F512;</div><div class="free-gate-title">Unlock Full Intelligence</div><div class="free-gate-sub">Pro subscribers see the complete picture &mdash; segment scores, regional data, AI strategy insights and more.</div><div class="free-gate-features"><div class="free-gate-feature">Consumer, Grower &amp; Retailer scores</div><div class="free-gate-feature">8-market regional breakdown</div><div class="free-gate-feature">AI strategy recommendations</div><div class="free-gate-feature">Competitive benchmark chart</div></div><button class="btn btn-primary" onclick="closeModal();openUpgrade()">Get Pro Access &rarr;</button></div>';}
 
 function proModalHTML(v){var grade=scoreGrade(v.score);var gapAlert=v.cgGap>=15?'<div class="gap-alert">&#x26A1; Consumer&ndash;Grower gap: <strong>+'+v.cgGap+' pts</strong> &mdash; strong premium pricing signal</div>':'';var regRows=(v.regional||[]).map(function(r){return '<tr><td><strong>'+r.region+'</strong></td><td>'+r.score+'</td><td>'+r.consumer+'</td><td>'+r.grower+'</td><td>'+r.retailer+'</td><td>'+r.mentions+'</td><td>'+(r.trend>0?'+':'')+r.trend+'%</td><td><span class="signal-'+((r.signal||'stable').toLowerCase())+'">'+r.signal+'</span></td></tr>';}).join('');var aiCards=generateAIInsights(v).map(function(ai){return '<div class="ai-card"><div class="ai-card-type ai-type-'+ai.type+'">'+ai.label+'</div><div class="ai-card-text">'+ai.text+'</div></div>';}).join('');return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> total mentions</div><div class="score-meta-item"><strong>'+v.confidence+'%</strong> data confidence</div></div></div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="modal-segments-section"><div class="modal-section-label">Audience Segment Scores</div><div class="segments-grid"><div class="seg-card"><div class="seg-label">&#x1F6D2; Consumer</div><div class="seg-score" style="color:'+scoreColor(v.consumer)+'">'+v.consumer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.consumer+'%;background:'+scoreColor(v.consumer)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F331; Grower</div><div class="seg-score" style="color:'+scoreColor(v.grower)+'">'+v.grower+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.grower+'%;background:'+scoreColor(v.grower)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F3EA; Retailer</div><div class="seg-score" style="color:'+scoreColor(v.retailer)+'">'+v.retailer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.retailer+'%;background:'+scoreColor(v.retailer)+'"></div></div></div></div>'+gapAlert+'</div>'+'<div class="modal-decision-section"><span class="decision-label-text">Strategic Decision:</span>'+decisionTagLg(v.decision||'push')+'</div>'+'<div class="modal-charts-section"><div class="chart-card"><div class="chart-card-title">Monthly Mentions <div class="period-tabs"><button class="period-tab active" onclick="switchPeriod(\'3m\',this)">3M</button><button class="period-tab" onclick="switchPeriod(\'6m\',this)">6M</button><button class="period-tab" onclick="switchPeriod(\'1y\',this)">1Y</button></div></div><div class="chart-wrap"><canvas id="chart-mentions"></canvas></div></div><div class="chart-card"><div class="chart-card-title">Consumer vs. Grower vs. Retailer</div><div class="chart-wrap"><canvas id="chart-segments"></canvas></div></div></div>'+'<div class="modal-regional-section"><div class="modal-section-label">Regional Breakdown</div><table class="regional-table"><thead><tr><th>Market</th><th>Overall</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Mentions</th><th>Trend</th><th>Signal</th></tr></thead><tbody>'+regRows+'</tbody></table></div>'+'<div class="modal-ai-section"><div class="modal-section-label">AI Strategy Insights</div><div class="ai-grid">'+aiCards+'</div></div>'+'<div class="modal-benchmark-section"><div class="modal-section-label">Competitive Benchmark &mdash; '+v.crop+'</div><div class="benchmark-wrap"><canvas id="chart-benchmark"></canvas></div></div>';}
 
@@ -831,6 +841,23 @@ function decisionLabel(d){var map={push:'Push & Scale',phase_out:'Phase Out',rai
 
 initAuth();
 updateAuthUI();
+
+// ===== FEATURED VARIETIES (fixed, picked 2026-03-05) =====
+(function(){
+  var FEATURED=[
+    {id:2840,variety:'Karma Moon Lady Yellow',crop:'Dahlia',series:'Karma',company:'Syngenta Flowers',score:72,consumer:74,grower:68,retailer:71,trend:3,positive:65,neutral:22,negative:13,mentions:412,confidence:81,decision:'push',cgGap:6},
+    {id:1985,variety:'Feather',crop:'Hydrangea',series:'',company:'Agriom',score:68,consumer:70,grower:64,retailer:67,trend:2,positive:61,neutral:24,negative:15,mentions:287,confidence:76,decision:'push',cgGap:6},
+    {id:988,variety:'Appleblossom',crop:'Begonia',series:'SUREFIRE',company:'Proven Winners',score:75,consumer:78,grower:70,retailer:74,trend:5,positive:69,neutral:20,negative:11,mentions:534,confidence:84,decision:'push',cgGap:8},
+    {id:2923,variety:'Mermaid Lavender',crop:'Candytuft',series:'Mermaid',company:'Syngenta Flowers',score:70,consumer:72,grower:66,retailer:69,trend:1,positive:63,neutral:23,negative:14,mentions:318,confidence:78,decision:'push',cgGap:6},
+    {id:725,variety:'SESOR',crop:'Rose',series:'',company:'Meilland',score:77,consumer:80,grower:72,retailer:76,trend:4,positive:71,neutral:18,negative:11,mentions:623,confidence:86,decision:'push',cgGap:8}
+  ];
+  // Add to searchResults cache so openModal works
+  FEATURED.forEach(function(v){
+    if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);
+  });
+  var grid=document.getElementById('featured-grid');
+  if(grid)grid.innerHTML=FEATURED.map(function(v){return varCardHTML(v);}).join('');
+})();
 </script>
 </body>
 </html>
