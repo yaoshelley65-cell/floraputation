@@ -54,6 +54,17 @@ input{font-family:inherit;font-size:inherit}
 @media(max-width:900px){.featured-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.featured-grid{grid-template-columns:repeat(2,1fr)}}
 
+/* ===== PRICING ENHANCEMENTS ===== */
+.tier-price-amount{font-size:36px;font-weight:800;color:var(--green-dark);margin:12px 0 4px;line-height:1}
+.tier-price-period{font-size:16px;font-weight:500;color:var(--text-3)}
+.tier-tagline{font-size:13px;color:var(--text-2);line-height:1.6;margin:8px 0 16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.tier-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--green-dark);margin:16px 0 8px}
+.tier-section-sublabel{font-size:12px;font-weight:600;color:var(--text-2);margin:12px 0 6px;padding-left:2px}
+.tier-best-for{font-size:13px;color:var(--text-2);background:var(--bg-2);border-radius:8px;padding:10px 14px;margin:16px 0;line-height:1.5}
+.pro-tier .tier-price-amount{color:#fff}
+.pro-tier .tier-section-label{color:#86efac}
+.pro-tier .tier-best-for{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}
+
 /* ===== HOME HERO ===== */
 .hero{background:linear-gradient(135deg,var(--green-dark) 0%,var(--green-mid) 60%,#166534 100%);color:#fff;padding:72px 0 64px;text-align:center}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:24px}
@@ -378,7 +389,7 @@ input{font-family:inherit;font-size:inherit}
 
 <!-- HOME PAGE -->
 <div class="page active" id="page-home">
-  <div class="hero">
+  <div class="hero" id="home-hero">
     <div class="container">
 
       <h1 class="hero-title">Variety Reputation Intelligence<br>for <span class="hl">Flower Breeders</span></h1>
@@ -430,41 +441,68 @@ input{font-family:inherit;font-size:inherit}
     <div class="container">
       <div class="section-header">
         <div class="section-tag">Pricing</div>
-        <h2 class="section-title">Choose your access level</h2>
+        <h2 class="section-title">Understand how plant varieties perform in the real market</h2>
+        <p class="section-sub">Floraputation transforms scattered online signals into structured intelligence about plant variety reputation across growers, retailers, and consumers.</p>
       </div>
       <div class="tiers-grid">
+
+        <!-- FREE TIER -->
         <div class="tier-card">
           <span class="tier-badge free">Free</span>
           <div class="tier-name">Explorer</div>
-          <div class="tier-price">No cost &middot; No registration required</div>
+          <div class="tier-price-amount">&euro;0</div>
+          <div class="tier-price">For growers, retailers, distributors, and industry professionals exploring market signals.</div>
+          <p class="tier-tagline">Search and understand how a variety is perceived across regions and user groups.</p>
+          <div class="tier-section-label">Features</div>
           <ul class="tier-features">
-            <li>Search any variety by name or crop type</li>
-            <li>Reputation Score (0&ndash;100)</li>
+            <li>Search any variety by name or series type</li>
+            <li>Up to 10 searches per day</li>
+          </ul>
+          <div class="tier-section-label">Insights included</div>
+          <ul class="tier-features">
+            <li>Floraputation Reputation Score (0&ndash;100)</li>
             <li>Sentiment overview (Positive / Neutral / Negative)</li>
             <li>Total mention count &amp; data confidence</li>
-            <li class="locked">Segment scores (Consumer / Grower / Retailer)</li>
-            <li class="locked">Regional breakdown (8 markets)</li>
-            <li class="locked">AI strategy recommendations</li>
-            <li class="locked">Decision Hub &amp; Portfolio tools</li>
+            <li>Segment scores (Consumer / Grower / Retailer)</li>
+            <li>Regional breakdown across 8 key markets</li>
+            <li>AI-generated strategy recommendations</li>
           </ul>
-          <button class="tier-cta free-cta" onclick="showPage('search')">Start Searching</button>
+          <div class="tier-best-for"><strong>Best for</strong> &mdash; Quickly checking how a variety performs in the market.</div>
+          <button class="tier-cta free-cta" onclick="document.getElementById('home-hero').scrollIntoView({behavior:'smooth'})">Start for free</button>
         </div>
+
+        <!-- PRO TIER -->
         <div class="tier-card pro-tier">
           <span class="tier-badge pro">Pro</span>
           <div class="tier-name">Breeder Intelligence</div>
-          <div class="tier-price">Contact us for enterprise pricing</div>
+          <div class="tier-price-amount">&euro;1,200 <span class="tier-price-period">/ month</span></div>
+          <div class="tier-price">For breeding companies and strategy teams.</div>
+          <p class="tier-tagline">Floraputation Pro turns market reputation data into a decision hub for variety strategy. Track how your varieties &mdash; and your competitors&rsquo; &mdash; perform across markets, channels, and user groups.</p>
+          <div class="tier-section-label">Everything in Free, plus</div>
+          <div class="tier-section-sublabel">Advanced access</div>
           <ul class="tier-features">
-            <li>Everything in Explorer</li>
-            <li>Consumer, Grower &amp; Retailer segment scores</li>
-            <li>8-market regional heatmap</li>
-            <li>AI strategy insights per variety</li>
-            <li>Competitive benchmark charts</li>
-            <li>Decision Hub (Push / Phase Out / Raise Price / Elite)</li>
-            <li>Portfolio risk assessment</li>
-            <li>Quarterly HTML report export</li>
+            <li>Search by variety name, series, or crop type</li>
+            <li>Unlimited searches</li>
           </ul>
-          <button class="tier-cta pro-cta" onclick="openUpgrade()">Get Pro Access</button>
+          <div class="tier-section-sublabel">Strategic intelligence tools</div>
+          <ul class="tier-features">
+            <li>Decision Hub for market strategy analysis</li>
+            <li>Variety comparison tools across markets</li>
+          </ul>
+          <div class="tier-section-sublabel">Automated insights</div>
+          <ul class="tier-features">
+            <li>Quarterly variety intelligence reports delivered to your inbox</li>
+            <li>Reputation monitoring for key varieties</li>
+            <li>Early sentiment alerts and analysis</li>
+          </ul>
+          <div class="tier-section-sublabel">Strategic support</div>
+          <ul class="tier-features">
+            <li>Dedicated insights for breeding and marketing decisions</li>
+          </ul>
+          <div class="tier-best-for"><strong>Best for</strong> &mdash; Breeding companies that need structured market intelligence to guide variety promotion and strategy.</div>
+          <button class="tier-cta pro-cta" onclick="openProRequest()">Request Pro Access</button>
         </div>
+
       </div>
     </div>
   </div>
@@ -641,6 +679,45 @@ input{font-family:inherit;font-size:inherit}
 </div>
 
 <!-- UPGRADE MODAL -->
+<!-- PRO REQUEST MODAL (invite code + email template) -->
+<div class="upgrade-overlay" id="pro-request-modal">
+  <div class="upgrade-box" style="max-width:480px;width:90%">
+    <button class="modal-close" onclick="closeProRequest()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-3)">&times;</button>
+    <div class="upgrade-icon">&#x1F511;</div>
+    <div class="upgrade-title">Request Pro Access</div>
+    <div class="upgrade-sub" style="margin-bottom:20px">Have an invite code? Enter it below to activate your Pro trial.</div>
+
+    <!-- INVITE CODE INPUT -->
+    <div id="invite-section" style="margin-bottom:24px">
+      <div style="display:flex;gap:8px">
+        <input id="invite-code-input" type="text" placeholder="Enter invite code" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;font-family:inherit">
+        <button onclick="activateInviteCode()" style="padding:10px 18px;background:var(--green-accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Activate</button>
+      </div>
+      <div id="invite-msg" style="margin-top:8px;font-size:13px;min-height:18px"></div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:12px;color:var(--text-3);white-space:nowrap">Don&rsquo;t have a code?</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- EMAIL TEMPLATE -->
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px;text-align:left">
+      <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Request an invite code by email</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">Send an email to <strong style="color:var(--green-dark)">yaoshelley65@gmail.com</strong> with the following message:</div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text-1);line-height:1.7;font-style:italic">
+        &ldquo;我是<span style="background:#fef9c3;padding:0 3px;border-radius:3px">___公司</span>的<span style="background:#fef9c3;padding:0 3px;border-radius:3px">___</span>，我想要试用Pro版本，请回复邮件给我邀请码。&rdquo;
+      </div>
+      <button onclick="window.location.href='mailto:yaoshelley65@gmail.com?subject=Request%20for%20Floraputation%20Pro%20Invite%20Code&body=%E6%88%91%E6%98%AF___%E5%85%AC%E5%8F%B8%E7%9A%84___%EF%BC%8C%E6%88%91%E6%83%B3%E8%A6%81%E8%AF%95%E7%94%A8Pro%E7%89%88%E6%9C%AC%EF%BC%8C%E8%AF%B7%E5%9B%9E%E5%A4%8D%E9%82%AE%E4%BB%B6%E7%BB%99%E6%88%91%E9%82%80%E8%AF%B7%E7%A0%81%E3%80%82'" style="margin-top:12px;width:100%;padding:9px;background:var(--green-dark);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">&#x2709; Send Email Request</button>
+    </div>
+
+    <button onclick="closeProRequest()" style="width:100%;padding:10px;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-2);cursor:pointer">Maybe later</button>
+  </div>
+</div>
+
+<!-- LEGACY UPGRADE MODAL (kept for openUpgrade() calls from variety modal) -->
 <div class="upgrade-overlay" id="upgrade-modal">
   <div class="upgrade-box">
     <div class="upgrade-icon">&#x1F33F;</div>
@@ -841,6 +918,42 @@ function decisionLabel(d){var map={push:'Push & Scale',phase_out:'Phase Out',rai
 
 initAuth();
 updateAuthUI();
+
+// ===== PRO REQUEST MODAL =====
+function openProRequest(){
+  document.getElementById('pro-request-modal').classList.add('open');
+  document.getElementById('invite-code-input').value='';
+  document.getElementById('invite-msg').textContent='';
+}
+function closeProRequest(){
+  document.getElementById('pro-request-modal').classList.remove('open');
+}
+function activateInviteCode(){
+  var code=document.getElementById('invite-code-input').value.trim();
+  var msg=document.getElementById('invite-msg');
+  if(!code){msg.style.color='#dc2626';msg.textContent='Please enter an invite code.';return;}
+  if(code==='SlHj6F'){
+    localStorage.setItem('fp_pro','1');
+    msg.style.color='#16a34a';
+    msg.textContent='\u2713 Invite code accepted! Pro access activated.';
+    setTimeout(function(){
+      closeProRequest();
+      updateAuthUI();
+      showPage('hub');
+    },1200);
+  } else {
+    msg.style.color='#dc2626';
+    msg.textContent='Invalid invite code. Please check and try again.';
+    document.getElementById('invite-code-input').style.borderColor='#dc2626';
+    setTimeout(function(){
+      document.getElementById('invite-code-input').style.borderColor='';
+    },2000);
+  }
+}
+// Close pro request modal on overlay click
+document.getElementById('pro-request-modal').addEventListener('click',function(e){
+  if(e.target===this)closeProRequest();
+});
 
 // ===== FEATURED VARIETIES (fixed, picked 2026-03-05) =====
 (function(){
