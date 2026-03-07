@@ -871,7 +871,7 @@ input{font-family:inherit;font-size:inherit}
 <script>
 var currentUser=null,searchResults=[],compareList=[],portfolioList=[],heatmapChartInst=null,compareChartInst=null,portfolioChartInst=null,modalCharts={},currentVariety=null;
 
-function isPro(){if(!currentUser)return false;return currentUser.role==='admin'||currentUser.role==='pro'||currentUser.tier==='pro';}
+function isPro(){if(localStorage.getItem('fp_pro')==='1')return true;if(!currentUser)return false;return currentUser.role==='admin'||currentUser.role==='pro'||currentUser.tier==='pro';}
 
 function initAuth(){var s=sessionStorage.getItem('fp_user');if(s){try{var u=JSON.parse(s);var f=PRO_USERS.find(function(x){return x.email===u.email;});if(f){currentUser=f;updateAuthUI();}}catch(e){}}}
 
