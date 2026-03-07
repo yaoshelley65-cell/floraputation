@@ -247,14 +247,14 @@ input{font-family:inherit;font-size:inherit}
 .hub-header{background:linear-gradient(135deg,var(--green-dark),var(--green-mid));color:#fff;padding:36px 0}
 .hub-title{font-size:26px;font-weight:800;margin-bottom:6px}
 .hub-sub{font-size:14px;color:rgba(255,255,255,.8)}
-.hub-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+.hub-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:24px}
 .hub-kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-lg);padding:16px;text-align:center}
 .hub-kpi-num{font-size:32px;font-weight:800;color:#fff}
 .hub-kpi-label{font-size:12px;color:rgba(255,255,255,.8);margin-top:2px}
 .hub-kpi-icon{font-size:20px;margin-bottom:4px}
 .hub-controls{display:flex;align-items:center;justify-content:space-between;padding:20px 0;gap:16px;flex-wrap:wrap}
-.hub-tabs{display:flex;gap:6px;flex-wrap:wrap}
-.hub-tab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-2);transition:all .15s}
+.hub-tabs{display:flex;gap:6px;flex-wrap:nowrap;width:100%}
+.hub-tab{padding:7px 0;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text-2);transition:all .15s;flex:1;text-align:center;white-space:nowrap}
 .hub-tab:hover{background:var(--bg-3)}
 .hub-tab.active{background:var(--green-accent);color:#fff;border-color:var(--green-accent)}
 .hub-actions{display:flex;gap:8px}
@@ -796,17 +796,18 @@ input{font-family:inherit;font-size:inherit}
         var local=VARIETIES.find(function(v){return v.variety===r.variety&&v.crop===r.crop;});
         if(local)return local;
         // Use Supabase fields directly, generate missing chart data deterministically
-        var sc=r.score||seededRand(r.id*3,50,88);
         var cn=r.consumer||seededRand(r.id*5,45,98);
         var gr=r.grower||seededRand(r.id*7,40,92);
         var rt=r.retailer||seededRand(r.id*9,45,95);
+        // Score = weighted average: consumer 40%, grower 30%, retailer 30%
+        var sc=Math.round(cn*0.4+gr*0.3+rt*0.3);
         var tr=r.trend!=null?parseFloat(r.trend):((seededRand(r.id*11,-10,15))/10);
         var pos=r.positive||seededRand(r.id*13,45,85);
         var neu=r.neutral||seededRand(r.id*15,10,30);
         var neg=r.negative||(100-pos-neu);
         var conf=r.confidence||seededRand(r.id*17,65,95);
         var mr=r.mentions_raw||seededRand(r.id*19,500,50000);
-        var cg=r.cg_gap||(cn-gr);
+        var cg=cn-gr;
         var dec=r.decision||'push';
         return {
           id:r.id,
@@ -931,28 +932,26 @@ function initHub(){
     function seededRand(seed,min,max){var x=Math.sin(seed+1)*10000;var r=x-Math.floor(x);return Math.floor(r*(max-min+1))+min;}
     function genRegional(r){var regions=['Netherlands','Germany','France','UK','USA','Japan','China','Australia'];var signals=['Hot','Stable','Stable','Low','Stable','Risk','Stable','Low'];return regions.map(function(reg,i){var s=seededRand(r.id*7+i*3,55,95);var c=seededRand(r.id*11+i*5,50,99);var g=seededRand(r.id*13+i*7,45,90);var rt=seededRand(r.id*17+i*9,50,95);var m=seededRand(r.id*19+i*11,200,9999);var tr=seededRand(r.id*23+i*13,-8,10);return {region:reg,score:s,consumer:c,grower:g,retailer:rt,mentions:(m>999?(m/1000).toFixed(1)+'K':m),trend:tr,signal:signals[i]};});}
     function genMonthlyArr(seed,base,len,minV,maxV){var arr=[];for(var i=0;i<len;i++){var v=base+Math.round(Math.sin((seed+i)*0.7)*8+(seededRand(seed*13+i,0,10)-5));arr.push(Math.min(maxV,Math.max(minV,v)));}return arr;}
-    // Assign decision based on scores
-    var enriched=data.map(function(r){
-      var sc=r.score||seededRand(r.id*3,50,88);
+    // Enrich all data with computed scores
+    var allEnriched=data.map(function(r){
       var cn=r.consumer||seededRand(r.id*5,45,98);
       var gr=r.grower||seededRand(r.id*7,40,92);
       var rt=r.retailer||seededRand(r.id*9,45,95);
+      // Score = weighted average of consumer(40%), grower(30%), retailer(30%)
+      var sc=Math.round(cn*0.4+gr*0.3+rt*0.3);
       var tr=r.trend!=null?parseFloat(r.trend):((seededRand(r.id*11,-10,15))/10);
       var pos=r.positive||seededRand(r.id*13,45,85);
       var neu=r.neutral||seededRand(r.id*15,10,30);
       var neg=r.negative||(100-pos-neu);
       var conf=r.confidence||seededRand(r.id*17,65,95);
       var mr=r.mentions_raw||seededRand(r.id*19,500,50000);
-      var cg=r.cg_gap||(cn-gr);
-      // Determine decision: maintain = all scores 80-90
-      var dec=r.decision||'push';
-      if(cn>=80&&cn<=90&&gr>=80&&gr<=90&&rt>=80&&rt<=90){dec='maintain';}
+      var cg=cn-gr;
       return {
         id:r.id,variety:r.variety,crop:r.crop,series:r.series||'',
         score:sc,consumer:cn,grower:gr,retailer:rt,
         trend:tr,positive:pos,neutral:neu,negative:neg,
         confidence:conf,mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,
-        mentionsRaw:mr,cgGap:Math.abs(cg),decision:dec,decisions:[dec],
+        mentionsRaw:mr,cgGap:cg,decision:'push',decisions:['push'],
         regional:genRegional(r),
         monthlyMentions:genMonthlyArr(r.id,Math.round(mr/12),12,50,Math.round(mr/6)),
         monthlyConsumer:genMonthlyArr(r.id*2,cn,12,40,100),
@@ -960,20 +959,27 @@ function initHub(){
         monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)
       };
     });
-    window._hubVarieties=enriched;
+    // Select 100 varieties and assign fixed distribution: 28 push, 17 phase, 11 harvest, 41 maintain, 3 elite
+    // Shuffle deterministically using seeded sort
+    var shuffled=allEnriched.slice().sort(function(a,b){return seededRand(a.id*31+b.id*17,0,100)-50;});
+    var selected=shuffled.slice(0,100);
+    var targets={push:28,phase_out:17,raise_price:11,maintain:41,elite_growers:3};
+    var keys=['push','phase_out','raise_price','maintain','elite_growers'];
+    var assigned=0;
+    keys.forEach(function(dec){
+      var count=targets[dec];
+      for(var i=assigned;i<assigned+count&&i<selected.length;i++){selected[i].decision=dec;selected[i].decisions=[dec];}
+      assigned+=count;
+    });
+    window._hubVarieties=selected;
     window._hubLoaded=true;
     // Add to searchResults cache for openModal
-    enriched.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
-    var push=enriched.filter(function(v){return v.decision==='push';}).length;
-    var phase=enriched.filter(function(v){return v.decision==='phase_out';}).length;
-    var price=enriched.filter(function(v){return v.decision==='raise_price';}).length;
-    var elite=enriched.filter(function(v){return v.decision==='elite_growers';}).length;
-    var maintain=enriched.filter(function(v){return v.decision==='maintain';}).length;
-    document.getElementById('kpi-push').textContent=push;
-    document.getElementById('kpi-phase').textContent=phase;
-    document.getElementById('kpi-price').textContent=price;
-    document.getElementById('kpi-elite').textContent=elite;
-    var km=document.getElementById('kpi-maintain');if(km)km.textContent=maintain;
+    selected.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
+    document.getElementById('kpi-push').textContent=28;
+    document.getElementById('kpi-phase').textContent=17;
+    document.getElementById('kpi-price').textContent=11;
+    document.getElementById('kpi-elite').textContent=3;
+    var km=document.getElementById('kpi-maintain');if(km)km.textContent=41;
     renderHub('all');
   }).catch(function(){
     var push=VARIETIES.filter(function(v){return v.decision==='push';}).length;
@@ -1019,7 +1025,7 @@ function analysePortfolio(){if(portfolioList.length<2){alert('Please add at leas
 
 function exportReport(){var push=VARIETIES.filter(function(v){return v.decision==='push';});var phase=VARIETIES.filter(function(v){return v.decision==='phase_out';});var price=VARIETIES.filter(function(v){return v.decision==='raise_price';});var elite=VARIETIES.filter(function(v){return v.decision==='elite_growers';});var top10=[].concat(VARIETIES).sort(function(a,b){return b.score-a.score;}).slice(0,10);var now=new Date();var qtr='Q'+Math.ceil((now.getMonth()+1)/3)+' '+now.getFullYear();var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Floraputation '+qtr+' Report</title><style>body{font-family:Inter,sans-serif;max-width:900px;margin:0 auto;padding:40px;color:#111827}h1{color:#166534;font-size:28px;margin-bottom:4px}h2{font-size:18px;color:#374151;margin:32px 0 12px;border-bottom:2px solid #e5e7eb;padding-bottom:8px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.kpi{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center}.kpi-num{font-size:32px;font-weight:800;color:#166534}.kpi-label{font-size:12px;color:#6b7280;margin-top:4px}table{width:100%;border-collapse:collapse;font-size:13px}th{padding:8px 10px;text-align:left;background:#f9fafb;border-bottom:2px solid #e5e7eb;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#6b7280}td{padding:8px 10px;border-bottom:1px solid #e5e7eb}.score{font-weight:700}.footer{margin-top:40px;font-size:11px;color:#9ca3af;text-align:center;border-top:1px solid #e5e7eb;padding-top:16px}</style></head><body><h1>&#x1F33F; Floraputation Quarterly Report</h1><p style="color:#6b7280;margin-bottom:24px">'+qtr+' &middot; Generated '+now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+' &middot; '+VARIETIES.length+' varieties tracked</p><div class="kpis"><div class="kpi"><div class="kpi-num">'+push.length+'</div><div class="kpi-label">&#x1F680; Push &amp; Scale</div></div><div class="kpi"><div class="kpi-num">'+phase.length+'</div><div class="kpi-label">&#x1F6D1; Phase Out</div></div><div class="kpi"><div class="kpi-num">'+price.length+'</div><div class="kpi-label">&#x1F4B0; Raise Price</div></div><div class="kpi"><div class="kpi-num">'+elite.length+'</div><div class="kpi-label">&#x1F33F; Elite Only</div></div></div><h2>Top 10 Varieties by Reputation Score</h2><table><thead><tr><th>#</th><th>Variety</th><th>Crop</th><th>Score</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Decision</th></tr></thead><tbody>'+top10.map(function(v,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td class="score" style="color:'+scoreColor(v.score)+'">'+v.score+'</td><td>'+v.consumer+'</td><td>'+v.grower+'</td><td>'+v.retailer+'</td><td>'+decisionLabel(v.decision||'push')+'</td></tr>';}).join('')+'</tbody></table><h2>Varieties Recommended for Phase-Out</h2><table><thead><tr><th>Variety</th><th>Crop</th><th>Score</th><th>Trend</th><th>Negative Sentiment</th></tr></thead><tbody>'+phase.slice(0,20).map(function(v){return '<tr><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td class="score" style="color:'+scoreColor(v.score)+'">'+v.score+'</td><td style="color:'+(v.trend>0?'#16a34a':'#dc2626')+'">'+(v.trend>0?'+':'')+v.trend+'%</td><td>'+v.negative+'%</td></tr>';}).join('')+'</tbody></table><h2>Premium Pricing Opportunities</h2><table><thead><tr><th>Variety</th><th>Crop</th><th>Consumer</th><th>Grower</th><th>C&ndash;G Gap</th></tr></thead><tbody>'+price.slice(0,20).map(function(v){return '<tr><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td>'+v.consumer+'</td><td>'+v.grower+'</td><td style="color:#d97706;font-weight:700">+'+v.cgGap+' pts</td></tr>';}).join('')+'</tbody></table><div class="footer">Floraputation &middot; Variety Reputation Intelligence &middot; floraputation.com</div></body></html>';var blob=new Blob([html],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='floraputation-'+qtr.replace(' ','-').toLowerCase()+'-report.html';a.click();}
 
-function generateAIInsights(v){var insights=[];if(v.score>=80)insights.push({type:'strategy',label:'Strategy',text:v.variety+' is a top performer with a score of '+v.score+'/100. Prioritise for mass-market rollout and increase marketing investment.'});else if(v.score<60)insights.push({type:'risk',label:'Risk Alert',text:'Score of '+v.score+'/100 is below threshold. Evaluate whether to phase out or invest in variety improvement.'});if(v.cgGap>=15)insights.push({type:'pricing',label:'Pricing Signal',text:'Consumer score ('+v.consumer+') is '+v.cgGap+' pts above Grower score ('+v.grower+'). Strong signal to increase wholesale price.'});if(v.trend>5)insights.push({type:'market',label:'Market Momentum',text:'Trend is +'+v.trend+'% &mdash; accelerating growth. Consider expanding into underpenetrated markets now.'});else if(v.trend<-5)insights.push({type:'risk',label:'Declining Trend',text:'Trend is '+v.trend+'% &mdash; declining momentum. Investigate root cause: grower complaints, competition, or seasonal shift.'});if(v.retailer>v.consumer+10)insights.push({type:'market',label:'Retail Opportunity',text:'Retailer score ('+v.retailer+') significantly exceeds Consumer score ('+v.consumer+'). Strong B2B channel opportunity.'});if(v.grower<60&&v.consumer>=75)insights.push({type:'strategy',label:'Elite Grower Strategy',text:'High consumer demand ('+v.consumer+') but grower difficulty ('+v.grower+'). Restrict to elite growers and position as premium.'});if(v.negative>20)insights.push({type:'risk',label:'Sentiment Risk',text:v.negative+'% negative sentiment is elevated. Investigate common complaints and address quality or availability issues.'});while(insights.length<4)insights.push({type:'strategy',label:'Recommendation',text:'Monitor '+v.variety+' closely over the next quarter. '+(v.score>=70?'Maintain current positioning.':'Consider strategic review.')});return insights.slice(0,6);}
+function generateAIInsights(v){var insights=[];if(v.score>=80)insights.push({type:'strategy',label:'Strategy',text:v.variety+' is a top performer with a score of '+v.score+'/100. Prioritise for mass-market rollout and increase marketing investment.'});else if(v.score<60)insights.push({type:'risk',label:'Risk Alert',text:'Score of '+v.score+'/100 is below threshold. Evaluate whether to phase out or invest in variety improvement.'});var cgDiff=v.consumer-v.grower;if(Math.abs(cgDiff)>=15){if(cgDiff>0){insights.push({type:'pricing',label:'Pricing Signal',text:'Consumer score ('+v.consumer+') is '+cgDiff+' pts above Grower score ('+v.grower+'). Strong signal to increase wholesale price.'});}else{insights.push({type:'pricing',label:'Pricing Signal',text:'Grower score ('+v.grower+') is '+Math.abs(cgDiff)+' pts above Consumer score ('+v.consumer+'). Consider improving consumer marketing or adjusting variety positioning.'});}}if(v.trend>5)insights.push({type:'market',label:'Market Momentum',text:'Trend is +'+v.trend+'% &mdash; accelerating growth. Consider expanding into underpenetrated markets now.'});else if(v.trend<-5)insights.push({type:'risk',label:'Declining Trend',text:'Trend is '+v.trend+'% &mdash; declining momentum. Investigate root cause: grower complaints, competition, or seasonal shift.'});if(v.retailer>v.consumer+10)insights.push({type:'market',label:'Retail Opportunity',text:'Retailer score ('+v.retailer+') significantly exceeds Consumer score ('+v.consumer+'). Strong B2B channel opportunity.'});if(v.grower<60&&v.consumer>=75)insights.push({type:'strategy',label:'Elite Grower Strategy',text:'High consumer demand ('+v.consumer+') but grower difficulty ('+v.grower+'). Restrict to elite growers and position as premium.'});if(v.negative>20)insights.push({type:'risk',label:'Sentiment Risk',text:v.negative+'% negative sentiment is elevated. Investigate common complaints and address quality or availability issues.'});while(insights.length<4)insights.push({type:'strategy',label:'Recommendation',text:'Monitor '+v.variety+' closely over the next quarter. '+(v.score>=70?'Maintain current positioning.':'Consider strategic review.')});return insights.slice(0,6);}
 
 function scoreColor(s){if(s>=85)return '#16a34a';if(s>=70)return '#22c55e';if(s>=55)return '#d97706';return '#dc2626';}
 function scoreGrade(s){if(s>=85)return {label:'Excellent',cls:'excellent'};if(s>=70)return {label:'Strong',cls:'strong'};if(s>=55)return {label:'Fair',cls:'fair'};return {label:'Weak',cls:'weak'};}
@@ -1086,18 +1092,18 @@ document.getElementById('pro-request-modal').addEventListener('click',function(e
     function genRegional(r){var regions=['Netherlands','Germany','France','UK','USA','Japan','China','Australia'];var signals=['Hot','Stable','Stable','Low','Stable','Risk','Stable','Low'];return regions.map(function(reg,i){var s=seededRand(r.id*7+i*3,55,95);var c=seededRand(r.id*11+i*5,50,99);var g=seededRand(r.id*13+i*7,45,90);var rt=seededRand(r.id*17+i*9,50,95);var m=seededRand(r.id*19+i*11,200,9999);var tr=seededRand(r.id*23+i*13,-8,10);return {region:reg,score:s,consumer:c,grower:g,retailer:rt,mentions:(m>999?(m/1000).toFixed(1)+'K':m),trend:tr,signal:signals[i]};});}
     function genMonthlyArr(seed,base,len,minV,maxV){var arr=[];for(var i=0;i<len;i++){var v=base+Math.round(Math.sin((seed+i)*0.7)*8+(seededRand(seed*13+i,0,10)-5));arr.push(Math.min(maxV,Math.max(minV,v)));}return arr;}
     var enriched=picked.map(function(r){
-      var sc=r.score||seededRand(r.id*3,50,88);
       var cn=r.consumer||seededRand(r.id*5,45,98);
       var gr=r.grower||seededRand(r.id*7,40,92);
       var rt=r.retailer||seededRand(r.id*9,45,95);
+      var sc=Math.round(cn*0.4+gr*0.3+rt*0.3);
       var tr=r.trend!=null?parseFloat(r.trend):((seededRand(r.id*11,-10,15))/10);
       var pos=r.positive||seededRand(r.id*13,45,85);
       var neu=r.neutral||seededRand(r.id*15,10,30);
       var neg=r.negative||(100-pos-neu);
       var conf=r.confidence||seededRand(r.id*17,65,95);
       var mr=r.mentions_raw||seededRand(r.id*19,500,50000);
-      var cg=r.cg_gap||(cn-gr);
-      return {id:r.id,variety:r.variety,crop:r.crop,series:r.series||'',score:sc,consumer:cn,grower:gr,retailer:rt,trend:tr,positive:pos,neutral:neu,negative:neg,confidence:conf,mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,mentionsRaw:mr,cgGap:Math.abs(cg),decision:r.decision||'push',decisions:[r.decision||'push'],regional:genRegional(r),monthlyMentions:genMonthlyArr(r.id,Math.round(mr/12),12,50,Math.round(mr/6)),monthlyConsumer:genMonthlyArr(r.id*2,cn,12,40,100),monthlyGrower:genMonthlyArr(r.id*3,gr,12,35,100),monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)};
+      var cg=cn-gr;
+      return {id:r.id,variety:r.variety,crop:r.crop,series:r.series||'',score:sc,consumer:cn,grower:gr,retailer:rt,trend:tr,positive:pos,neutral:neu,negative:neg,confidence:conf,mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,mentionsRaw:mr,cgGap:cg,decision:r.decision||'push',decisions:[r.decision||'push'],regional:genRegional(r),monthlyMentions:genMonthlyArr(r.id,Math.round(mr/12),12,50,Math.round(mr/6)),monthlyConsumer:genMonthlyArr(r.id*2,cn,12,40,100),monthlyGrower:genMonthlyArr(r.id*3,gr,12,35,100),monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)};
     });
     enriched.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
     if(grid)grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
