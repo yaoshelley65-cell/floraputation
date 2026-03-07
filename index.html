@@ -722,17 +722,29 @@ input{font-family:inherit;font-size:inherit}
   <div class="upgrade-box">
     <div class="upgrade-icon">&#x1F33F;</div>
     <div class="upgrade-title">Unlock Pro Intelligence</div>
-    <div class="upgrade-sub">Get full access to segment scores, regional heatmaps, AI strategy insights, and quarterly export reports.</div>
+    <div class="upgrade-sub">Get full access to Decision Hub</div>
+
+    <!-- INVITE CODE INPUT -->
+    <div id="upgrade-invite-section" style="margin-bottom:20px">
+      <div style="display:flex;gap:8px">
+        <input id="upgrade-invite-input" type="text" placeholder="Enter invite code" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;font-family:inherit">
+        <button onclick="activateUpgradeCode()" style="padding:10px 18px;background:var(--green-accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Activate</button>
+      </div>
+      <div id="upgrade-invite-msg" style="margin-top:8px;font-size:13px;min-height:18px"></div>
+    </div>
+
     <div class="upgrade-features-list">
-      <div class="upgrade-feature-item">Consumer, Grower &amp; Retailer segment scores</div>
-      <div class="upgrade-feature-item">8-market regional heatmap</div>
-      <div class="upgrade-feature-item">AI strategy recommendations per variety</div>
-      <div class="upgrade-feature-item">Decision Hub &mdash; Push / Phase Out / Raise Price / Elite</div>
-      <div class="upgrade-feature-item">Portfolio risk assessment tool</div>
-      <div class="upgrade-feature-item">Quarterly HTML report export</div>
+      <div class="upgrade-feature-item">Unlimited searches</div>
+      <div class="upgrade-feature-item">Floraputation Reputation Score (0&ndash;100)</div>
+      <div class="upgrade-feature-item">Sentiment overview (Positive / Neutral / Negative)</div>
+      <div class="upgrade-feature-item">Total mention count &amp; data confidence</div>
+      <div class="upgrade-feature-item">Segment scores (Consumer / Grower / Retailer)</div>
+      <div class="upgrade-feature-item">Regional breakdown across 8 key markets</div>
+      <div class="upgrade-feature-item">Decision Hub for market strategy analysis</div>
+      <div class="upgrade-feature-item">Reputation monitoring for key varieties</div>
     </div>
     <div class="upgrade-email-box">
-      <div class="upgrade-email-label">Contact us to get started:</div>
+      <div class="upgrade-email-label">No invite code? Contact us to get started:</div>
       <div class="upgrade-email-addr">yaoshelley65@gmail.com</div>
     </div>
     <button class="upgrade-close-btn" onclick="closeUpgrade()">Maybe later</button>
@@ -772,11 +784,27 @@ input{font-family:inherit;font-size:inherit}
         grid.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><div class="empty-title">No results found</div><div class="empty-sub">Try a different search term or crop name</div></div>';
         return;
       }
+      // Deterministic seeded random based on variety id
+      function seededRand(seed,min,max){var x=Math.sin(seed+1)*10000;var r=x-Math.floor(x);return Math.floor(r*(max-min+1))+min;}
+      function genMonthlyArr(seed,base,len,minV,maxV){var arr=[];for(var i=0;i<len;i++){var v=base+Math.round(Math.sin((seed+i)*0.7)*8+(seededRand(seed*13+i,0,10)-5));arr.push(Math.min(maxV,Math.max(minV,v)));}return arr;}
+      function genRegional(r){var regions=['Netherlands','Germany','France','UK','USA','Japan','China','Australia'];var signals=['Hot','Stable','Stable','Low','Stable','Risk','Stable','Low'];return regions.map(function(reg,i){var s=seededRand(r.id*7+i*3,55,95);var c=seededRand(r.id*11+i*5,50,99);var g=seededRand(r.id*13+i*7,45,90);var rt=seededRand(r.id*17+i*9,50,95);var m=seededRand(r.id*19+i*11,200,9999);var tr=seededRand(r.id*23+i*13,-8,10);return {region:reg,score:s,consumer:c,grower:g,retailer:rt,mentions:(m>999?(m/1000).toFixed(1)+'K':m),trend:tr,signal:signals[i]};});}
       // Merge with local VARIETIES data if available (for full score data)
       var enriched=data.map(function(r){
         var local=VARIETIES.find(function(v){return v.variety===r.variety&&v.crop===r.crop;});
         if(local)return local;
-        // Create a lightweight record for varieties without local score data
+        // Use Supabase fields directly, generate missing chart data deterministically
+        var sc=r.score||seededRand(r.id*3,50,88);
+        var cn=r.consumer||seededRand(r.id*5,45,98);
+        var gr=r.grower||seededRand(r.id*7,40,92);
+        var rt=r.retailer||seededRand(r.id*9,45,95);
+        var tr=r.trend!=null?parseFloat(r.trend):((seededRand(r.id*11,-10,15))/10);
+        var pos=r.positive||seededRand(r.id*13,45,85);
+        var neu=r.neutral||seededRand(r.id*15,10,30);
+        var neg=r.negative||(100-pos-neu);
+        var conf=r.confidence||seededRand(r.id*17,65,95);
+        var mr=r.mentions_raw||seededRand(r.id*19,500,50000);
+        var cg=r.cg_gap||(cn-gr);
+        var dec=r.decision||'push';
         return {
           id:r.id,
           variety:r.variety,
@@ -784,17 +812,19 @@ input{font-family:inherit;font-size:inherit}
           series:r.series||'',
           company:r.company||'',
           source_url:r.source_url||'',
-          score:Math.floor(Math.random()*25)+60,
-          consumer:Math.floor(Math.random()*20)+65,
-          grower:Math.floor(Math.random()*20)+60,
-          retailer:Math.floor(Math.random()*20)+62,
-          trend:Math.floor(Math.random()*21)-5,
-          positive:Math.floor(Math.random()*20)+60,
-          neutral:Math.floor(Math.random()*15)+15,
-          negative:Math.floor(Math.random()*15)+5,
-          mentions:Math.floor(Math.random()*800)+100,
-          decision:'push',
-          cgGap:Math.floor(Math.random()*15)+1
+          score:sc,consumer:cn,grower:gr,retailer:rt,
+          trend:tr,positive:pos,neutral:neu,negative:neg,
+          confidence:conf,
+          mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,
+          mentionsRaw:mr,
+          cgGap:Math.abs(cg),
+          decision:dec,
+          decisions:[dec],
+          regional:genRegional(r),
+          monthlyMentions:genMonthlyArr(r.id,Math.round(mr/12),12,50,Math.round(mr/6)),
+          monthlyConsumer:genMonthlyArr(r.id*2,cn,12,40,100),
+          monthlyGrower:genMonthlyArr(r.id*3,gr,12,35,100),
+          monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)
         };
       });
       searchResults=enriched;
@@ -851,8 +881,9 @@ function openSignIn(){document.getElementById('signin-modal').classList.add('ope
 function closeSignIn(){document.getElementById('signin-modal').classList.remove('open');}
 function doSignIn(){var email=document.getElementById('si-email').value.trim().toLowerCase();var pass=document.getElementById('si-pass').value;var err=document.getElementById('si-error');var user=PRO_USERS.find(function(u){return u.email.toLowerCase()===email&&u.password===pass;});if(user){currentUser=user;sessionStorage.setItem('fp_user',JSON.stringify({email:user.email}));err.style.display='none';closeSignIn();updateAuthUI();}else{err.style.display='block';}}
 function doSignOut(){currentUser=null;sessionStorage.removeItem('fp_user');updateAuthUI();showPage('home');}
-function openUpgrade(){document.getElementById('upgrade-modal').classList.add('open');}
+function openUpgrade(){var m=document.getElementById('upgrade-modal');m.classList.add('open');var inp=document.getElementById('upgrade-invite-input');if(inp)inp.value='';var msg=document.getElementById('upgrade-invite-msg');if(msg)msg.textContent='';}
 function closeUpgrade(){document.getElementById('upgrade-modal').classList.remove('open');}
+function activateUpgradeCode(){var code=document.getElementById('upgrade-invite-input').value.trim();var msg=document.getElementById('upgrade-invite-msg');if(!code){msg.style.color='#dc2626';msg.textContent='Please enter an invite code.';return;}if(code==='SlHj6F'){localStorage.setItem('fp_pro','1');msg.style.color='#16a34a';msg.textContent='\u2713 Invite code accepted! Pro access activated.';setTimeout(function(){closeUpgrade();location.reload();},1200);}else{msg.style.color='#dc2626';msg.textContent='Invalid invite code. Please check and try again.';var inp=document.getElementById('upgrade-invite-input');inp.style.borderColor='#dc2626';setTimeout(function(){inp.style.borderColor='';},2000);}}
 function requirePro(page){if(isPro()){showPage(page);}else{openUpgrade();}}
 
 function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nav-link').forEach(function(l){l.classList.remove('active');});var pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');var nl=document.getElementById('nav-'+id);if(nl)nl.classList.add('active');window.scrollTo(0,0);if(id==='hub')initHub();if(id==='heatmap')initHeatmap();if(id==='compare')initCompare();if(id==='portfolio')initPortfolio();}
