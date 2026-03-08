@@ -50,9 +50,11 @@ input{font-family:inherit;font-size:inherit}
 
 /* ===== FEATURED SECTION ===== */
 .featured-section{padding:48px 0;background:var(--bg)}
-.featured-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
-@media(max-width:900px){.featured-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.featured-grid{grid-template-columns:repeat(2,1fr)}}
+.featured-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.featured-grid .variety-card{display:flex;flex-direction:column;height:100%}
+.featured-grid .variety-card .vc-sentiment{flex:1}
+@media(max-width:900px){.featured-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.featured-grid{grid-template-columns:1fr}}
 
 /* ===== PRICING ENHANCEMENTS ===== */
 .tier-price-amount{font-size:36px;font-weight:800;color:var(--green-dark);margin:12px 0 4px;line-height:1}
@@ -1098,7 +1100,7 @@ document.getElementById('pro-request-modal').addEventListener('click',function(e
   var SB_URL='https://zzccxgmlagggamsngoua.supabase.co';
   var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Y2N4Z21sYWdnZ2Ftc25nb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTEwOTYsImV4cCI6MjA4ODIyNzA5Nn0.OoobIlUJlz_zjCVetXw9wyJqFtFmjHNYLnJPKfiHtgA';
   var grid=document.getElementById('featured-grid');
-  // Fetch a random offset page of 100 and pick 20
+  // Fetch a random offset page of 100 and pick 16
   var offset=Math.floor(Math.random()*200)*10;
   fetch(SB_URL+'/rest/v1/varieties?select=id,variety,crop,series,score,consumer,grower,retailer,trend,positive,neutral,negative,confidence,mentions_raw,cg_gap,decision&limit=100&offset='+offset+'&order=id.asc',{
     headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
@@ -1107,7 +1109,7 @@ document.getElementById('pro-request-modal').addEventListener('click',function(e
     if(!Array.isArray(data)||!data.length)return;
     // Shuffle and pick 20
     for(var i=data.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=data[i];data[i]=data[j];data[j]=t;}
-    var picked=data.slice(0,20);
+    var picked=data.slice(0,16);
     function seededRand(seed,min,max){var x=Math.sin(seed+1)*10000;var r=x-Math.floor(x);return Math.floor(r*(max-min+1))+min;}
     function genRegional(r){var regions=['Netherlands','Germany','France','UK','USA','Japan','China','Australia'];var signals=['Hot','Stable','Stable','Low','Stable','Risk','Stable','Low'];return regions.map(function(reg,i){var s=seededRand(r.id*7+i*3,55,95);var c=seededRand(r.id*11+i*5,50,99);var g=seededRand(r.id*13+i*7,45,90);var rt=seededRand(r.id*17+i*9,50,95);var m=seededRand(r.id*19+i*11,200,9999);var tr=seededRand(r.id*23+i*13,-8,10);return {region:reg,score:s,consumer:c,grower:g,retailer:rt,mentions:(m>999?(m/1000).toFixed(1)+'K':m),trend:tr,signal:signals[i]};});}
     function genMonthlyArr(seed,base,len,minV,maxV){var arr=[];for(var i=0;i<len;i++){var v=base+Math.round(Math.sin((seed+i)*0.7)*8+(seededRand(seed*13+i,0,10)-5));arr.push(Math.min(maxV,Math.max(minV,v)));}return arr;}
@@ -1129,7 +1131,7 @@ document.getElementById('pro-request-modal').addEventListener('click',function(e
     if(grid)grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
   }).catch(function(){
     // Fallback to local VARIETIES
-    var local=[].concat(VARIETIES).sort(function(){return Math.random()-0.5;}).slice(0,20);
+    var local=[].concat(VARIETIES).sort(function(){return Math.random()-0.5;}).slice(0,16);
     local.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
     if(grid)grid.innerHTML=local.map(function(v){return varCardHTML(v);}).join('');
   });
