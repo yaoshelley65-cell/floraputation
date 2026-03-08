@@ -51,7 +51,9 @@ input{font-family:inherit;font-size:inherit}
 /* ===== FEATURED SECTION ===== */
 .featured-section{padding:48px 0;background:var(--bg)}
 .featured-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.featured-grid .variety-card{display:flex;flex-direction:column;height:100%}
+.featured-grid .variety-card{display:flex;flex-direction:column;height:100%;min-width:0}
+.featured-grid .variety-card .vc-top{min-width:0}
+.featured-grid .variety-card .vc-info{min-width:0;overflow:hidden}
 .featured-grid .variety-card .vc-sentiment{flex:1}
 @media(max-width:900px){.featured-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.featured-grid{grid-template-columns:1fr}}
