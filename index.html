@@ -410,6 +410,7 @@ input{font-family:inherit;font-size:inherit}
         <span class="chip" onclick="quickSearch('Begonia')">Begonia</span>
         <span class="chip" onclick="quickSearch('Geranium')">Geranium</span>
       </div>
+      <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:20px;margin-bottom:0;line-height:1.6;max-width:620px;margin-left:auto;margin-right:auto">* All variety names displayed are fictitious and used for demonstration purposes only. Any resemblance to real commercial varieties is purely coincidental.</p>
       <div class="hero-stats-bar">
         <div class="hero-stat"><div class="hero-stat-num" id="stat-varieties">4,301</div><div class="hero-stat-label">Varieties Tracked</div></div>
         <div class="hero-stat"><div class="hero-stat-num" id="stat-crops">50+</div><div class="hero-stat-label">Crop Categories</div></div>
@@ -509,13 +510,13 @@ input{font-family:inherit;font-size:inherit}
 
   <!-- FEATURED VARIETIES SECTION -->
   <div class="featured-section">
-    <div class="container">
+    <div class="container" style="text-align:center">
       <div class="section-header" style="margin-bottom:28px">
         <div class="section-tag">Featured Varieties</div>
         <h2 class="section-title" style="font-size:22px">Explore Variety Reputation Data</h2>
         <p class="section-sub" style="font-size:14px">Click any card to explore its reputation data</p>
       </div>
-      <div class="featured-grid" id="featured-grid"></div>
+      <div class="featured-grid" id="featured-grid" style="text-align:left"></div>
     </div>
   </div>
 </div>
@@ -959,27 +960,46 @@ function initHub(){
         monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)
       };
     });
-    // Select 100 varieties and assign fixed distribution: 28 push, 17 phase, 11 harvest, 41 maintain, 3 elite
-    // Shuffle deterministically using seeded sort
+    // Apply decision logic based on Grower/Consumer/Retailer score spec table
+    function calcDecision(cn,gr,rt){
+      var g80=gr>=80,g70=gr>=70&&gr<80,gLow=gr<70;
+      var c80=cn>=80,c70=cn>=70&&cn<80,cLow=cn<70;
+      var r80=rt>=80,r70=rt>=70&&rt<80,rLow=rt<70;
+      if(g80){
+        if(c80&&(r80||r70))return 'raise_price';   // Harvest
+        if(c80&&rLow)return 'push';                 // Push&Scale
+        if(c70&&r80)return 'push';                  // Push&Scale
+        return 'maintain';                          // all other g80 combos
+      }
+      if(g70){
+        if(c80)return 'elite_growers';              // g70, c80 any r
+        return 'maintain';                          // g70, c<80
+      }
+      // gLow
+      if(c80)return 'elite_growers';               // gLow, c80 any r
+      if(c70&&r80)return 'elite_growers';          // gLow, c70, r80
+      if(c70&&r70)return 'elite_growers';          // gLow, c70, r70
+      if(c70&&rLow)return 'phase_out';             // gLow, c70, rLow
+      return 'phase_out';                          // gLow, cLow any r
+    }
+    allEnriched.forEach(function(v){v.decision=calcDecision(v.consumer,v.grower,v.retailer);v.decisions=[v.decision];});
+    // Select 100 varieties with deterministic shuffle
     var shuffled=allEnriched.slice().sort(function(a,b){return seededRand(a.id*31+b.id*17,0,100)-50;});
     var selected=shuffled.slice(0,100);
-    var targets={push:28,phase_out:17,raise_price:11,maintain:41,elite_growers:3};
-    var keys=['push','phase_out','raise_price','maintain','elite_growers'];
-    var assigned=0;
-    keys.forEach(function(dec){
-      var count=targets[dec];
-      for(var i=assigned;i<assigned+count&&i<selected.length;i++){selected[i].decision=dec;selected[i].decisions=[dec];}
-      assigned+=count;
-    });
     window._hubVarieties=selected;
     window._hubLoaded=true;
     // Add to searchResults cache for openModal
     selected.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
-    document.getElementById('kpi-push').textContent=28;
-    document.getElementById('kpi-phase').textContent=17;
-    document.getElementById('kpi-price').textContent=11;
-    document.getElementById('kpi-elite').textContent=3;
-    var km=document.getElementById('kpi-maintain');if(km)km.textContent=41;
+    var pushC=selected.filter(function(v){return v.decision==='push';}).length;
+    var phaseC=selected.filter(function(v){return v.decision==='phase_out';}).length;
+    var priceC=selected.filter(function(v){return v.decision==='raise_price';}).length;
+    var eliteC=selected.filter(function(v){return v.decision==='elite_growers';}).length;
+    var maintC=selected.filter(function(v){return v.decision==='maintain';}).length;
+    document.getElementById('kpi-push').textContent=pushC;
+    document.getElementById('kpi-phase').textContent=phaseC;
+    document.getElementById('kpi-price').textContent=priceC;
+    document.getElementById('kpi-elite').textContent=eliteC;
+    var km=document.getElementById('kpi-maintain');if(km)km.textContent=maintC;
     renderHub('all');
   }).catch(function(){
     var push=VARIETIES.filter(function(v){return v.decision==='push';}).length;
