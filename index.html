@@ -837,8 +837,9 @@ input{font-family:inherit;font-size:inherit}
         };
       });
       searchResults=enriched;
+      if(window._cacheVarieties)_cacheVarieties(enriched);
       count.innerHTML='Found <strong>'+enriched.length+'</strong> variet'+(enriched.length===1?'y':'ies')+' in database';
-      grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
+      grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');}
     })
     .catch(function(err){
       // Fallback to local search if API fails
@@ -878,7 +879,9 @@ input{font-family:inherit;font-size:inherit}
 })();
 </script>
 <script>
-var currentUser=null,searchResults=[],compareList=[],portfolioList=[],heatmapChartInst=null,compareChartInst=null,portfolioChartInst=null,modalCharts={},currentVariety=null;
+var currentUser=null,searchResults=[],compareList=[],portfolioList=[],heatmapChartInst=null,compareChartInst=null,portfolioChartInst=null,modalCharts={},currentVariety=null,_varCache={};
+function _cacheVariety(v){if(v&&v.id)_varCache[v.id]=v;}
+function _cacheVarieties(arr){if(Array.isArray(arr))arr.forEach(_cacheVariety);}
 
 function isPro(){if(localStorage.getItem('fp_pro')==='1')return true;if(!currentUser)return false;return currentUser.role==='admin'||currentUser.role==='pro'||currentUser.tier==='pro';}
 
@@ -909,7 +912,7 @@ function varCardHTML(v){var grade=scoreGrade(v.score);var trendCls=v.trend>0?'tr
 
 function svgRing(score,size){var r=size*0.42;var circ=2*Math.PI*r;var dash=(score/100)*circ;var cx=size/2,cy=size/2;var fs=size*0.25;return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#e5e7eb" stroke-width="'+(size*0.077)+'"/>'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+scoreColor(score)+'" stroke-width="'+(size*0.077)+'" stroke-dasharray="'+dash+' '+circ+'" stroke-linecap="round" transform="rotate(-90 '+cx+' '+cy+')"/>'+'<text x="'+cx+'" y="'+(cy+fs*0.38)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="'+scoreColor(score)+'" font-family="Inter,sans-serif">'+score+'</text>'+'</svg>';}
 
-function openModal(id){var v=VARIETIES.find(function(x){return x.id===Number(id);});if(!v){v=(searchResults||[]).find(function(x){return x.id===Number(id);});}if(!v)return;currentVariety=v;document.getElementById('modal-name').textContent=v.variety;document.getElementById('modal-meta').textContent=(cleanCrop(v.crop)||'')+(v.series?(cleanCrop(v.crop)?' \u00b7 ':'')+v.series:'');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};var body=document.getElementById('modal-body');body.innerHTML=isPro()?proModalHTML(v):freeModalHTML(v);document.getElementById('variety-modal').classList.add('open');if(isPro())setTimeout(function(){renderModalCharts(v);},50);else drawFreeRing(v);}
+function openModal(id){var nid=Number(id);var v=_varCache[nid];if(!v){v=(searchResults||[]).find(function(x){return x.id===nid;});}if(!v){v=VARIETIES.find(function(x){return x.id===nid;});}if(!v)return;currentVariety=v;document.getElementById('modal-name').textContent=v.variety;document.getElementById('modal-meta').textContent=(cleanCrop(v.crop)||'')+(v.series?(cleanCrop(v.crop)?' \u00b7 ':'')+v.series:'');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};var body=document.getElementById('modal-body');body.innerHTML=isPro()?proModalHTML(v):freeModalHTML(v);document.getElementById('variety-modal').classList.add('open');if(isPro())setTimeout(function(){renderModalCharts(v);},50);else drawFreeRing(v);}
 
 function closeModal(){document.getElementById('variety-modal').classList.remove('open');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};}
 
@@ -992,7 +995,8 @@ function initHub(){
     var selected=shuffled.slice(0,100);
     window._hubVarieties=selected;
     window._hubLoaded=true;
-    // Add to searchResults cache for openModal
+    // Add to _varCache and searchResults for openModal
+    if(window._cacheVarieties)_cacheVarieties(selected);
     selected.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
     var pushC=selected.filter(function(v){return v.decision==='push';}).length;
     var phaseC=selected.filter(function(v){return v.decision==='phase_out';}).length;
@@ -1129,6 +1133,7 @@ document.getElementById('pro-request-modal').addEventListener('click',function(e
       var cg=cn-gr;
       return {id:r.id,variety:r.variety,crop:r.crop,series:r.series||'',score:sc,consumer:cn,grower:gr,retailer:rt,trend:tr,positive:pos,neutral:neu,negative:neg,confidence:conf,mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,mentionsRaw:mr,cgGap:cg,decision:r.decision||'push',decisions:[r.decision||'push'],regional:genRegional(r),monthlyMentions:genMonthlyArr(r.id,Math.round(mr/12),12,50,Math.round(mr/6)),monthlyConsumer:genMonthlyArr(r.id*2,cn,12,40,100),monthlyGrower:genMonthlyArr(r.id*3,gr,12,35,100),monthlyRetailer:genMonthlyArr(r.id*4,rt,12,40,100)};
     });
+    if(window._cacheVarieties)_cacheVarieties(enriched);
     enriched.forEach(function(v){if(!searchResults.find(function(x){return x.id===v.id;}))searchResults.push(v);});
     if(grid)grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
   }).catch(function(){
