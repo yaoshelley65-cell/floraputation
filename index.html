@@ -839,7 +839,7 @@ input{font-family:inherit;font-size:inherit}
       searchResults=enriched;
       if(window._cacheVarieties)_cacheVarieties(enriched);
       count.innerHTML='Found <strong>'+enriched.length+'</strong> variet'+(enriched.length===1?'y':'ies')+' in database';
-      grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');}
+      grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
     })
     .catch(function(err){
       // Fallback to local search if API fails
