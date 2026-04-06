@@ -75,37 +75,13 @@ input{font-family:inherit;font-size:inherit}
 .hero-title{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:20px;letter-spacing:-1px}
 .hero-title .hl{color:var(--green-light)}
 .hero-sub{font-size:16px;color:rgba(255,255,255,.85);max-width:560px;margin:0 auto 40px;line-height:1.7}
-.search-wrap{max-width:780px;margin:0 auto 28px;position:relative}
+.search-wrap{max-width:680px;margin:0 auto 28px;position:relative}
 .search-row{display:flex;background:#fff;border-radius:var(--r-xl);box-shadow:0 4px 24px rgba(0,0,0,.2);overflow:hidden}
 .search-icon-wrap{display:flex;align-items:center;padding:0 16px;color:var(--text-3);font-size:18px;flex-shrink:0}
 .search-main-input{flex:1;border:none;outline:none;font-size:15px;padding:16px 0;color:var(--text-1);background:transparent}
 .search-main-input::placeholder{color:var(--text-3)}
 .search-go-btn{background:var(--green-accent);color:#fff;border:none;padding:0 28px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;flex-shrink:0}
 .search-go-btn:hover{background:var(--green-mid)}
-/* ===== THREE-FIELD SEARCH ===== */
-.search-fields-row{display:flex;gap:12px;max-width:780px;margin:0 auto 20px;align-items:flex-end}
-.search-field-group{flex:1;display:flex;flex-direction:column;gap:4px}
-.search-field-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);text-align:left;letter-spacing:.3px}
-.search-field-label .required{color:#fca5a5;margin-left:2px}
-.search-field-label .optional{color:rgba(255,255,255,.5);font-weight:400;font-style:italic}
-.search-field-input{border:2px solid rgba(255,255,255,.25);border-radius:var(--r-md);padding:12px 14px;font-size:14px;color:var(--text-1);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;width:100%;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.search-field-input:focus{border-color:var(--green-light);box-shadow:0 2px 12px rgba(22,163,74,.25)}
-.search-field-input::placeholder{color:var(--text-3)}
-.search-fields-btn{background:var(--green-accent);color:#fff;border:none;padding:12px 32px;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(0,0,0,.15);flex-shrink:0;align-self:flex-end;height:45px}
-.search-fields-btn:hover{background:var(--green-mid)}
-@media(max-width:640px){.search-fields-row{flex-direction:column;gap:10px;padding:0 12px}.search-fields-btn{width:100%}}
-/* ===== ALIAS CONTRIBUTION ===== */
-.alias-section{margin-top:24px;padding:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-lg)}
-.alias-section-title{font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.alias-form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.alias-field{display:flex;flex-direction:column;gap:3px;flex:1;min-width:140px}
-.alias-field label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px}
-.alias-field input,.alias-field select{border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 10px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s}
-.alias-field input:focus,.alias-field select:focus{border-color:var(--green-accent)}
-.alias-submit-btn{background:var(--green-accent);color:#fff;border:none;padding:8px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap;height:36px;align-self:flex-end}
-.alias-submit-btn:hover{background:var(--green-mid)}
-.alias-submit-btn:disabled{background:var(--bg-3);color:var(--text-3);cursor:not-allowed}
-.alias-msg{font-size:12px;margin-top:8px;min-height:18px}
 .search-chips-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 .chip-label{font-size:12px;color:rgba(255,255,255,.7)}
 .chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
@@ -422,24 +398,13 @@ input{font-family:inherit;font-size:inherit}
 
       <h1 class="hero-title">Variety Reputation Intelligence<br>for <span class="hl">Flower Breeders</span></h1>
       <p class="hero-sub">We continuously harvest social media, e-commerce reviews and grower forums to build a real-time <strong>Reputation Index</strong> for every plant variety &mdash; so you always know which varieties are truly loved.</p>
-      <!-- Three-field search: Crop / Series / Variety -->
-      <div class="search-fields-row">
-        <div class="search-field-group">
-          <label class="search-field-label">Crop <span class="required">*</span></label>
-          <input class="search-field-input" id="search-crop" type="text" placeholder="e.g. Petunia" onkeydown="if(event.key==='Enter')doSearch()">
+      <div class="search-wrap">
+        <div class="search-row">
+          <span class="search-icon-wrap">&#x1F50D;</span>
+          <input class="search-main-input" id="home-search-input" type="text" placeholder="Search by variety name, series or crop..." onkeydown="if(event.key==='Enter')doSearch()">
+          <button class="search-go-btn" onclick="doSearch()">Search</button>
         </div>
-        <div class="search-field-group">
-          <label class="search-field-label">Series <span class="optional">(optional)</span></label>
-          <input class="search-field-input" id="search-series" type="text" placeholder="e.g. Galaxy" onkeydown="if(event.key==='Enter')doSearch()">
-        </div>
-        <div class="search-field-group">
-          <label class="search-field-label">Variety <span class="required">*</span></label>
-          <input class="search-field-input" id="search-variety" type="text" placeholder="e.g. Star" onkeydown="if(event.key==='Enter')doSearch()">
-        </div>
-        <button class="search-fields-btn" onclick="doSearch()">&#x1F50D; Search</button>
       </div>
-      <!-- Keep hidden input for backward compat with quickSearch -->
-      <input type="hidden" id="home-search-input">
       <div class="search-chips-row">
         <span class="chip-label">Popular:</span>
         <span class="chip" onclick="quickSearch('Calibrachoa')">Calibrachoa</span>
@@ -796,10 +761,6 @@ input{font-family:inherit;font-size:inherit}
 
 <script src="users.js"></script>
 <script src="data.js"></script>
-<!-- API configuration -->
-<script>
-var API_BASE = 'https://floraputation-api.onrender.com'; // Set to backend URL e.g. 'http://localhost:8000' or leave empty for same-domain
-</script>
 <!-- Supabase search layer: overrides runSearch with live API queries -->
 <script>
 (function(){
@@ -939,115 +900,9 @@ function requirePro(page){if(isPro()){showPage(page);}else{openUpgrade();}}
 
 function showPage(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nav-link').forEach(function(l){l.classList.remove('active');});var pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');var nl=document.getElementById('nav-'+id);if(nl)nl.classList.add('active');window.scrollTo(0,0);if(id==='hub')initHub();if(id==='heatmap')initHeatmap();if(id==='compare')initCompare();if(id==='portfolio')initPortfolio();}
 
-function quickSearch(term){
-  // Quick search puts term in crop field and clears others
-  document.getElementById('search-crop').value=term;
-  document.getElementById('search-series').value='';
-  document.getElementById('search-variety').value='';
-  document.getElementById('home-search-input').value=term;
-  showPage('search');
-  runSearch(term,'','');
-}
-function doSearch(){
-  var crop=(document.getElementById('search-crop')||{}).value||'';
-  var series=(document.getElementById('search-series')||{}).value||'';
-  var variety=(document.getElementById('search-variety')||{}).value||'';
-  crop=crop.trim(); series=series.trim(); variety=variety.trim();
-  // Build combined query for backward compat
-  var combined=[crop,series,variety].filter(Boolean).join(' ');
-  document.getElementById('home-search-input').value=combined;
-  if(!crop && !variety && !combined){
-    showPage('search');
-    renderResults([],'Please enter at least a Crop or Variety name');
-    return;
-  }
-  showPage('search');
-  runSearch(crop,series,variety);
-}
-function runSearch(crop,series,variety){
-  // Support legacy single-arg calls: if series/variety undefined, treat crop as combined query
-  if(typeof series==='undefined'){
-    var combined=crop;
-    crop=combined; series=''; variety='';
-  }
-  var query=[crop,series,variety].filter(Boolean).join(' ').trim();
-  if(!query){renderResults([],'Enter a search term to find varieties');return;}
-  // Try backend API first
-  var apiUrl=API_BASE+'/api/varieties?crop='+encodeURIComponent(crop)+'&query='+encodeURIComponent(query);
-  var grid=document.getElementById('results-grid');
-  var count=document.getElementById('results-count');
-  count.innerHTML='<span style="color:var(--text-3)">Searching...</span>';
-  grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-3)">&#x1F50D; Searching...</div>';
-  fetch(apiUrl).then(function(r){
-    if(!r.ok)throw new Error('API returned '+r.status);
-    return r.json();
-  }).then(function(data){
-    // API may return {items:[...]} or array directly
-    var items=Array.isArray(data)?data:(data.items||data.results||[]);
-    if(!items.length){
-      // Fallback to Supabase then local
-      throw new Error('empty-api');
-    }
-    var enriched=items.map(function(r){return enrichApiResult(r);});
-    searchResults=enriched;
-    if(window._cacheVarieties)_cacheVarieties(enriched);
-    count.innerHTML='Found <strong>'+enriched.length+'</strong> variet'+(enriched.length===1?'y':'ies');
-    grid.innerHTML=enriched.map(function(v){return varCardHTML(v);}).join('');
-  }).catch(function(err){
-    console.warn('Backend API search failed, trying Supabase:',err);
-    // Fallback to Supabase search
-    if(window._sbRunSearch){
-      window._sbRunSearch(query);
-    } else {
-      // Final fallback: local VARIETIES array
-      fallbackLocalSearch(query);
-    }
-  });
-}
-function fallbackLocalSearch(q){
-  if(!q){renderResults([],'Enter a search term to find varieties');return;}
-  var ql=q.toLowerCase();
-  var results=VARIETIES.filter(function(v){
-    return v.variety.toLowerCase().includes(ql)||v.crop.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);
-  });
-  searchResults=results;
-  renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies')+' (local)');
-}
-function enrichApiResult(r){
-  // Check if already enriched or exists in local cache
-  if(r.score && r.consumer && r.regional) return r;
-  var local=VARIETIES.find(function(v){return v.variety===r.variety&&v.crop===r.crop;});
-  if(local)return local;
-  function seededRand(seed,min,max){var x=Math.sin(seed+1)*10000;var rv=x-Math.floor(x);return Math.floor(rv*(max-min+1))+min;}
-  function genMonthlyArr(seed,base,len,minV,maxV){var arr=[];for(var i=0;i<len;i++){var v=base+Math.round(Math.sin((seed+i)*0.7)*8+(seededRand(seed*13+i,0,10)-5));arr.push(Math.min(maxV,Math.max(minV,v)));}return arr;}
-  function genRegional(rid){var regions=['Netherlands','Germany','France','UK','USA','Japan','China','Australia'];var signals=['Hot','Stable','Stable','Low','Stable','Risk','Stable','Low'];return regions.map(function(reg,i){var s=seededRand(rid*7+i*3,55,95);var c=seededRand(rid*11+i*5,50,99);var g=seededRand(rid*13+i*7,45,90);var rt=seededRand(rid*17+i*9,50,95);var m=seededRand(rid*19+i*11,200,9999);var tr=seededRand(rid*23+i*13,-8,10);return {region:reg,score:s,consumer:c,grower:g,retailer:rt,mentions:(m>999?(m/1000).toFixed(1)+'K':m),trend:tr,signal:signals[i]};});}
-  var rid=r.id||Math.floor(Math.random()*99999);
-  var cn=r.consumer||seededRand(rid*5,45,98);
-  var gr=r.grower||seededRand(rid*7,40,92);
-  var rt=r.retailer||seededRand(rid*9,45,95);
-  var sc=r.score||Math.round(cn*0.4+gr*0.3+rt*0.3);
-  var tr=r.trend!=null?parseFloat(r.trend):((seededRand(rid*11,-10,15))/10);
-  var pos=r.positive||seededRand(rid*13,45,85);
-  var neu=r.neutral||seededRand(rid*15,10,30);
-  var neg=r.negative||(100-pos-neu);
-  var conf=r.confidence||seededRand(rid*17,65,95);
-  var mr=r.mentions_raw||r.mentionsRaw||seededRand(rid*19,500,50000);
-  var cg=cn-gr;
-  return {
-    id:rid,variety:r.variety||'',crop:r.crop||'',series:r.series||'',
-    company:r.company||'',source_url:r.source_url||'',
-    score:sc,consumer:cn,grower:gr,retailer:rt,
-    trend:tr,positive:pos,neutral:neu,negative:neg,
-    confidence:conf,mentions:mr>999?(mr/1000).toFixed(1)+'K':mr,
-    mentionsRaw:mr,cgGap:Math.abs(cg),
-    decision:r.decision||'push',decisions:[r.decision||'push'],
-    regional:genRegional(rid),
-    monthlyMentions:genMonthlyArr(rid,Math.round(mr/12),12,50,Math.round(mr/6)),
-    monthlyConsumer:genMonthlyArr(rid*2,cn,12,40,100),
-    monthlyGrower:genMonthlyArr(rid*3,gr,12,35,100),
-    monthlyRetailer:genMonthlyArr(rid*4,rt,12,40,100)
-  };
-}
+function quickSearch(term){document.getElementById('home-search-input').value=term;showPage('search');runSearch(term);}
+function doSearch(){var q=(document.getElementById('home-search-input')||{}).value||'';showPage('search');runSearch(q.trim());}
+function runSearch(q){if(window._sbRunSearch){window._sbRunSearch(q);return;}if(!q){renderResults([],'Enter a search term to find varieties');return;}var ql=q.toLowerCase();var results=VARIETIES.filter(function(v){return v.variety.toLowerCase().includes(ql)||(v.series||'').toLowerCase().includes(ql);});searchResults=results;renderResults(results,'Found <strong>'+results.length+'</strong> variet'+(results.length===1?'y':'ies'));}
 
 function renderResults(results,countMsg){var grid=document.getElementById('results-grid');var count=document.getElementById('results-count');if(countMsg)count.innerHTML=countMsg;if(!results.length){if(!countMsg)count.innerHTML='No varieties found';grid.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><div class="empty-title">No results found</div><div class="empty-sub">Try a different search term</div></div>';return;}grid.innerHTML=results.map(function(v){return varCardHTML(v);}).join('');}
 
@@ -1057,67 +912,15 @@ function varCardHTML(v){var grade=scoreGrade(v.score);var trendCls=v.trend>0?'tr
 
 function svgRing(score,size){var r=size*0.42;var circ=2*Math.PI*r;var dash=(score/100)*circ;var cx=size/2,cy=size/2;var fs=size*0.25;return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#e5e7eb" stroke-width="'+(size*0.077)+'"/>'+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+scoreColor(score)+'" stroke-width="'+(size*0.077)+'" stroke-dasharray="'+dash+' '+circ+'" stroke-linecap="round" transform="rotate(-90 '+cx+' '+cy+')"/>'+'<text x="'+cx+'" y="'+(cy+fs*0.38)+'" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="'+scoreColor(score)+'" font-family="Inter,sans-serif">'+score+'</text>'+'</svg>';}
 
-function openModal(id){var nid=Number(id);var v=_varCache[nid];if(!v){v=(searchResults||[]).find(function(x){return x.id===nid;});}if(!v){v=VARIETIES.find(function(x){return x.id===nid;});}if(!v)return;currentVariety=v;document.getElementById('modal-name').textContent=v.variety;document.getElementById('modal-meta').textContent=(cleanCrop(v.crop)||'')+(v.series?(cleanCrop(v.crop)?' \u00b7 ':'')+v.series:'');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};var body=document.getElementById('modal-body');body.innerHTML=isPro()?proModalHTML(v):freeModalHTML(v);document.getElementById('variety-modal').classList.add('open');if(isPro())setTimeout(function(){renderModalCharts(v);},50);else drawFreeRing(v);
-  // Try to fetch AI analysis from backend API
-  fetchAIAnalysis(v);
-}
-
-function fetchAIAnalysis(v){
-  var aiSection=document.querySelector('#modal-body .modal-ai-section');
-  if(!aiSection)return; // Not pro or section not present
-  var payload={crop:v.crop||'',series:v.series||'',variety:v.variety||''};
-  // Show loading indicator
-  var aiGrid=aiSection.querySelector('.ai-grid');
-  var origContent=aiGrid?aiGrid.innerHTML:'';
-  if(aiGrid)aiGrid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-3)">&#x1F916; Fetching AI analysis from backend...</div>';
-  fetch(API_BASE+'/api/analysis/full-pipeline',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  }).then(function(r){
-    if(!r.ok)throw new Error('API returned '+r.status);
-    return r.json();
-  }).then(function(data){
-    if(!aiGrid)return;
-    var cards=[];
-    if(data.summary)cards.push({type:'strategy',label:'AI Summary',text:data.summary});
-    if(data.strengths&&data.strengths.length)cards.push({type:'strategy',label:'Strengths',text:data.strengths.join('; ')});
-    if(data.weaknesses&&data.weaknesses.length)cards.push({type:'risk',label:'Weaknesses',text:data.weaknesses.join('; ')});
-    if(data.recommendations&&data.recommendations.length)cards.push({type:'market',label:'Recommendations',text:data.recommendations.join('; ')});
-    if(data.market_position)cards.push({type:'market',label:'Market Position',text:data.market_position});
-    if(data.trend)cards.push({type:'strategy',label:'Trend',text:data.trend});
-    if(cards.length){
-      aiGrid.innerHTML=cards.map(function(ai){return '<div class="ai-card"><div class="ai-card-type ai-type-'+ai.type+'">'+ai.label+'</div><div class="ai-card-text">'+ai.text+'</div></div>';}).join('');
-      // Update score if returned
-      if(data.reputation_score!=null){
-        v.score=data.reputation_score;
-        if(data.sentiment_distribution){
-          var total=(data.sentiment_distribution.positive||0)+(data.sentiment_distribution.negative||0)+(data.sentiment_distribution.neutral||0);
-          if(total>0){
-            v.positive=Math.round((data.sentiment_distribution.positive/total)*100);
-            v.negative=Math.round((data.sentiment_distribution.negative/total)*100);
-            v.neutral=100-v.positive-v.negative;
-          }
-        }
-      }
-    } else {
-      // No useful data, restore original
-      aiGrid.innerHTML=origContent;
-    }
-  }).catch(function(err){
-    console.warn('AI analysis API failed, using local insights:',err);
-    // Restore original local AI insights
-    if(aiGrid)aiGrid.innerHTML=origContent;
-  });
-}
+function openModal(id){var nid=Number(id);var v=_varCache[nid];if(!v){v=(searchResults||[]).find(function(x){return x.id===nid;});}if(!v){v=VARIETIES.find(function(x){return x.id===nid;});}if(!v)return;currentVariety=v;document.getElementById('modal-name').textContent=v.variety;document.getElementById('modal-meta').textContent=(cleanCrop(v.crop)||'')+(v.series?(cleanCrop(v.crop)?' \u00b7 ':'')+v.series:'');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};var body=document.getElementById('modal-body');body.innerHTML=isPro()?proModalHTML(v):freeModalHTML(v);document.getElementById('variety-modal').classList.add('open');if(isPro())setTimeout(function(){renderModalCharts(v);},50);else drawFreeRing(v);}
 
 function closeModal(){document.getElementById('variety-modal').classList.remove('open');Object.values(modalCharts).forEach(function(c){try{c.destroy();}catch(e){}});modalCharts={};}
 
 function drawFreeRing(v){var canvas=document.getElementById('modal-ring-canvas');if(!canvas)return;var ctx=canvas.getContext('2d');var pct=v.score/100;ctx.clearRect(0,0,100,100);ctx.beginPath();ctx.arc(50,50,38,0,2*Math.PI);ctx.strokeStyle='#e5e7eb';ctx.lineWidth=7;ctx.stroke();ctx.beginPath();ctx.arc(50,50,38,-Math.PI/2,-Math.PI/2+2*Math.PI*pct);ctx.strokeStyle=scoreColor(v.score);ctx.lineWidth=7;ctx.lineCap='round';ctx.stroke();}
 
-function freeModalHTML(v){var grade=scoreGrade(v.score);var conf=v.confidence||Math.floor(v.score*0.9+Math.random()*8);var companyLine=v.company?'<div class="score-meta-item"><strong>'+v.company.replace(/_/g,' ')+'</strong></div>':'';return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> mentions</div><div class="score-meta-item"><strong>'+conf+'%</strong> confidence</div></div>'+companyLine+'</div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="free-gate"><div class="free-gate-icon">&#x1F512;</div><div class="free-gate-title">Unlock Full Intelligence</div><div class="free-gate-sub">Pro subscribers see the complete picture &mdash; segment scores, regional data, AI strategy insights and more.</div><div class="free-gate-features"><div class="free-gate-feature">Consumer, Grower &amp; Retailer scores</div><div class="free-gate-feature">8-market regional breakdown</div><div class="free-gate-feature">AI strategy recommendations</div><div class="free-gate-feature">Competitive benchmark chart</div></div><button class="btn btn-primary" onclick="closeModal();openUpgrade()">Get Pro Access &rarr;</button></div>'+aliasContributionHTML(v);}
+function freeModalHTML(v){var grade=scoreGrade(v.score);var conf=v.confidence||Math.floor(v.score*0.9+Math.random()*8);var companyLine=v.company?'<div class="score-meta-item"><strong>'+v.company.replace(/_/g,' ')+'</strong></div>':'';return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> mentions</div><div class="score-meta-item"><strong>'+conf+'%</strong> confidence</div></div>'+companyLine+'</div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="free-gate"><div class="free-gate-icon">&#x1F512;</div><div class="free-gate-title">Unlock Full Intelligence</div><div class="free-gate-sub">Pro subscribers see the complete picture &mdash; segment scores, regional data, AI strategy insights and more.</div><div class="free-gate-features"><div class="free-gate-feature">Consumer, Grower &amp; Retailer scores</div><div class="free-gate-feature">8-market regional breakdown</div><div class="free-gate-feature">AI strategy recommendations</div><div class="free-gate-feature">Competitive benchmark chart</div></div><button class="btn btn-primary" onclick="closeModal();openUpgrade()">Get Pro Access &rarr;</button></div>';}
 
-function proModalHTML(v){var grade=scoreGrade(v.score);var gapAlert=v.cgGap>=15?'<div class="gap-alert">&#x26A1; Consumer&ndash;Grower gap: <strong>+'+v.cgGap+' pts</strong> &mdash; strong premium pricing signal</div>':'';var regRows=(v.regional||[]).map(function(r){return '<tr><td><strong>'+r.region+'</strong></td><td>'+r.score+'</td><td>'+r.consumer+'</td><td>'+r.grower+'</td><td>'+r.retailer+'</td><td>'+r.mentions+'</td><td>'+(r.trend>0?'+':'')+r.trend+'%</td><td><span class="signal-'+((r.signal||'stable').toLowerCase())+'">'+r.signal+'</span></td></tr>';}).join('');var aiCards=generateAIInsights(v).map(function(ai){return '<div class="ai-card"><div class="ai-card-type ai-type-'+ai.type+'">'+ai.label+'</div><div class="ai-card-text">'+ai.text+'</div></div>';}).join('');return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> total mentions</div><div class="score-meta-item"><strong>'+v.confidence+'%</strong> data confidence</div></div></div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="modal-segments-section"><div class="modal-section-label">Audience Segment Scores</div><div class="segments-grid"><div class="seg-card"><div class="seg-label">&#x1F6D2; Consumer</div><div class="seg-score" style="color:'+scoreColor(v.consumer)+'">'+v.consumer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.consumer+'%;background:'+scoreColor(v.consumer)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F331; Grower</div><div class="seg-score" style="color:'+scoreColor(v.grower)+'">'+v.grower+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.grower+'%;background:'+scoreColor(v.grower)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F3EA; Retailer</div><div class="seg-score" style="color:'+scoreColor(v.retailer)+'">'+v.retailer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.retailer+'%;background:'+scoreColor(v.retailer)+'"></div></div></div></div>'+gapAlert+'</div>'+'<div class="modal-decision-section"><span class="decision-label-text">Strategic Decision:</span>'+decisionTagLg(v.decision||'push')+'</div>'+'<div class="modal-charts-section"><div class="chart-card"><div class="chart-card-title">Monthly Mentions <div class="period-tabs"><button class="period-tab active" onclick="switchPeriod(\'3m\',this)">3M</button><button class="period-tab" onclick="switchPeriod(\'6m\',this)">6M</button><button class="period-tab" onclick="switchPeriod(\'1y\',this)">1Y</button></div></div><div class="chart-wrap"><canvas id="chart-mentions"></canvas></div></div><div class="chart-card"><div class="chart-card-title">Consumer vs. Grower vs. Retailer</div><div class="chart-wrap"><canvas id="chart-segments"></canvas></div></div></div>'+'<div class="modal-regional-section"><div class="modal-section-label">Regional Breakdown</div><table class="regional-table"><thead><tr><th>Market</th><th>Overall</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Mentions</th><th>Trend</th><th>Signal</th></tr></thead><tbody>'+regRows+'</tbody></table></div>'+'<div class="modal-ai-section"><div class="modal-section-label">AI Strategy Insights</div><div class="ai-grid">'+aiCards+'</div></div>'+'<div class="modal-benchmark-section"><div class="modal-section-label">Competitive Benchmark &mdash; '+v.crop+'</div><div class="benchmark-wrap"><canvas id="chart-benchmark"></canvas></div></div>'+aliasContributionHTML(v);}
+function proModalHTML(v){var grade=scoreGrade(v.score);var gapAlert=v.cgGap>=15?'<div class="gap-alert">&#x26A1; Consumer&ndash;Grower gap: <strong>+'+v.cgGap+' pts</strong> &mdash; strong premium pricing signal</div>':'';var regRows=(v.regional||[]).map(function(r){return '<tr><td><strong>'+r.region+'</strong></td><td>'+r.score+'</td><td>'+r.consumer+'</td><td>'+r.grower+'</td><td>'+r.retailer+'</td><td>'+r.mentions+'</td><td>'+(r.trend>0?'+':'')+r.trend+'%</td><td><span class="signal-'+((r.signal||'stable').toLowerCase())+'">'+r.signal+'</span></td></tr>';}).join('');var aiCards=generateAIInsights(v).map(function(ai){return '<div class="ai-card"><div class="ai-card-type ai-type-'+ai.type+'">'+ai.label+'</div><div class="ai-card-text">'+ai.text+'</div></div>';}).join('');return '<div class="modal-score-section"><div class="score-ring-wrap"><canvas id="modal-ring-canvas" class="score-ring-canvas" width="100" height="100"></canvas><div class="score-ring-label"><span class="score-num">'+v.score+'</span><span class="score-max">/100</span></div></div><div class="score-info"><div class="score-grade-text" style="color:'+scoreColor(v.score)+'">'+grade.label+'</div><div class="score-trend-text">'+(v.trend>0?'&#x2191;':'&#x2193;')+' '+Math.abs(v.trend)+'% vs last period</div><div class="score-meta-row"><div class="score-meta-item"><strong>'+v.mentions+'</strong> total mentions</div><div class="score-meta-item"><strong>'+v.confidence+'%</strong> data confidence</div></div></div></div>'+'<div class="modal-sentiment-section"><div class="modal-section-label">Sentiment Breakdown</div><div class="sent-bar-lg"><div class="sent-pos" style="width:'+v.positive+'%"></div><div class="sent-neu" style="width:'+v.neutral+'%"></div><div class="sent-neg" style="width:'+v.negative+'%"></div></div><div class="sent-labels-row"><div class="sent-item"><span class="sent-dot" style="background:var(--green-accent)"></span>'+v.positive+'% Positive</div><div class="sent-item"><span class="sent-dot" style="background:#d1d5db"></span>'+v.neutral+'% Neutral</div><div class="sent-item"><span class="sent-dot" style="background:#f87171"></span>'+v.negative+'% Negative</div></div></div>'+'<div class="modal-segments-section"><div class="modal-section-label">Audience Segment Scores</div><div class="segments-grid"><div class="seg-card"><div class="seg-label">&#x1F6D2; Consumer</div><div class="seg-score" style="color:'+scoreColor(v.consumer)+'">'+v.consumer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.consumer+'%;background:'+scoreColor(v.consumer)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F331; Grower</div><div class="seg-score" style="color:'+scoreColor(v.grower)+'">'+v.grower+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.grower+'%;background:'+scoreColor(v.grower)+'"></div></div></div><div class="seg-card"><div class="seg-label">&#x1F3EA; Retailer</div><div class="seg-score" style="color:'+scoreColor(v.retailer)+'">'+v.retailer+'</div><div class="seg-bar"><div class="seg-fill" style="width:'+v.retailer+'%;background:'+scoreColor(v.retailer)+'"></div></div></div></div>'+gapAlert+'</div>'+'<div class="modal-decision-section"><span class="decision-label-text">Strategic Decision:</span>'+decisionTagLg(v.decision||'push')+'</div>'+'<div class="modal-charts-section"><div class="chart-card"><div class="chart-card-title">Monthly Mentions <div class="period-tabs"><button class="period-tab active" onclick="switchPeriod(\'3m\',this)">3M</button><button class="period-tab" onclick="switchPeriod(\'6m\',this)">6M</button><button class="period-tab" onclick="switchPeriod(\'1y\',this)">1Y</button></div></div><div class="chart-wrap"><canvas id="chart-mentions"></canvas></div></div><div class="chart-card"><div class="chart-card-title">Consumer vs. Grower vs. Retailer</div><div class="chart-wrap"><canvas id="chart-segments"></canvas></div></div></div>'+'<div class="modal-regional-section"><div class="modal-section-label">Regional Breakdown</div><table class="regional-table"><thead><tr><th>Market</th><th>Overall</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Mentions</th><th>Trend</th><th>Signal</th></tr></thead><tbody>'+regRows+'</tbody></table></div>'+'<div class="modal-ai-section"><div class="modal-section-label">AI Strategy Insights</div><div class="ai-grid">'+aiCards+'</div></div>'+'<div class="modal-benchmark-section"><div class="modal-section-label">Competitive Benchmark &mdash; '+v.crop+'</div><div class="benchmark-wrap"><canvas id="chart-benchmark"></canvas></div></div>';}
 
 function renderModalCharts(v){var ringCanvas=document.getElementById('modal-ring-canvas');if(ringCanvas){var ctx=ringCanvas.getContext('2d');var pct=v.score/100;ctx.clearRect(0,0,100,100);ctx.beginPath();ctx.arc(50,50,38,0,2*Math.PI);ctx.strokeStyle='#e5e7eb';ctx.lineWidth=7;ctx.stroke();ctx.beginPath();ctx.arc(50,50,38,-Math.PI/2,-Math.PI/2+2*Math.PI*pct);ctx.strokeStyle=scoreColor(v.score);ctx.lineWidth=7;ctx.lineCap='round';ctx.stroke();}var mm=v.monthlyMentions||[];var labels12=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var mentCanvas=document.getElementById('chart-mentions');if(mentCanvas&&mm.length){modalCharts.mentions=new Chart(mentCanvas,{type:'bar',data:{labels:labels12.slice(-mm.length),datasets:[{data:mm,backgroundColor:'rgba(22,163,74,.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f3f4f6'}}}}});}var mc=v.monthlyConsumer||[];var mg=v.monthlyGrower||[];var mr=v.monthlyRetailer||[];var segCanvas=document.getElementById('chart-segments');if(segCanvas&&mc.length){modalCharts.segments=new Chart(segCanvas,{type:'line',data:{labels:labels12.slice(-mc.length),datasets:[{label:'Consumer',data:mc,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.1)',tension:.3,fill:true,pointRadius:2},{label:'Grower',data:mg,borderColor:'#0284c7',backgroundColor:'rgba(2,132,199,.1)',tension:.3,fill:true,pointRadius:2},{label:'Retailer',data:mr,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.1)',tension:.3,fill:true,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{grid:{display:false}},y:{min:40,max:100,grid:{color:'#f3f4f6'}}}}});}var peers=VARIETIES.filter(function(x){return x.crop===v.crop&&x.id!==v.id;}).sort(function(a,b){return b.score-a.score;}).slice(0,2);var bmCanvas=document.getElementById('chart-benchmark');if(bmCanvas){var labels=['Score','Consumer','Grower','Retailer','Confidence'];modalCharts.benchmark=new Chart(bmCanvas,{type:'radar',data:{labels:labels,datasets:[{label:v.variety,data:[v.score,v.consumer,v.grower,v.retailer,v.confidence],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.15)',pointRadius:3}].concat(peers.map(function(p,i){return {label:p.variety,data:[p.score,p.consumer,p.grower,p.retailer,p.confidence],borderColor:['#0284c7','#7c3aed'][i],backgroundColor:['rgba(2,132,199,.1)','rgba(124,58,237,.1)'][i],pointRadius:3};}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'#e5e7eb'}}}}});}}
 
@@ -1251,66 +1054,6 @@ function analysePortfolio(){if(portfolioList.length<2){alert('Please add at leas
 function exportReport(){var push=VARIETIES.filter(function(v){return v.decision==='push';});var phase=VARIETIES.filter(function(v){return v.decision==='phase_out';});var price=VARIETIES.filter(function(v){return v.decision==='raise_price';});var elite=VARIETIES.filter(function(v){return v.decision==='elite_growers';});var top10=[].concat(VARIETIES).sort(function(a,b){return b.score-a.score;}).slice(0,10);var now=new Date();var qtr='Q'+Math.ceil((now.getMonth()+1)/3)+' '+now.getFullYear();var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Floraputation '+qtr+' Report</title><style>body{font-family:Inter,sans-serif;max-width:900px;margin:0 auto;padding:40px;color:#111827}h1{color:#166534;font-size:28px;margin-bottom:4px}h2{font-size:18px;color:#374151;margin:32px 0 12px;border-bottom:2px solid #e5e7eb;padding-bottom:8px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.kpi{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center}.kpi-num{font-size:32px;font-weight:800;color:#166534}.kpi-label{font-size:12px;color:#6b7280;margin-top:4px}table{width:100%;border-collapse:collapse;font-size:13px}th{padding:8px 10px;text-align:left;background:#f9fafb;border-bottom:2px solid #e5e7eb;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#6b7280}td{padding:8px 10px;border-bottom:1px solid #e5e7eb}.score{font-weight:700}.footer{margin-top:40px;font-size:11px;color:#9ca3af;text-align:center;border-top:1px solid #e5e7eb;padding-top:16px}</style></head><body><h1>&#x1F33F; Floraputation Quarterly Report</h1><p style="color:#6b7280;margin-bottom:24px">'+qtr+' &middot; Generated '+now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+' &middot; '+VARIETIES.length+' varieties tracked</p><div class="kpis"><div class="kpi"><div class="kpi-num">'+push.length+'</div><div class="kpi-label">&#x1F680; Push &amp; Scale</div></div><div class="kpi"><div class="kpi-num">'+phase.length+'</div><div class="kpi-label">&#x1F6D1; Phase Out</div></div><div class="kpi"><div class="kpi-num">'+price.length+'</div><div class="kpi-label">&#x1F4B0; Raise Price</div></div><div class="kpi"><div class="kpi-num">'+elite.length+'</div><div class="kpi-label">&#x1F33F; Elite Only</div></div></div><h2>Top 10 Varieties by Reputation Score</h2><table><thead><tr><th>#</th><th>Variety</th><th>Crop</th><th>Score</th><th>Consumer</th><th>Grower</th><th>Retailer</th><th>Decision</th></tr></thead><tbody>'+top10.map(function(v,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td class="score" style="color:'+scoreColor(v.score)+'">'+v.score+'</td><td>'+v.consumer+'</td><td>'+v.grower+'</td><td>'+v.retailer+'</td><td>'+decisionLabel(v.decision||'push')+'</td></tr>';}).join('')+'</tbody></table><h2>Varieties Recommended for Phase-Out</h2><table><thead><tr><th>Variety</th><th>Crop</th><th>Score</th><th>Trend</th><th>Negative Sentiment</th></tr></thead><tbody>'+phase.slice(0,20).map(function(v){return '<tr><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td class="score" style="color:'+scoreColor(v.score)+'">'+v.score+'</td><td style="color:'+(v.trend>0?'#16a34a':'#dc2626')+'">'+(v.trend>0?'+':'')+v.trend+'%</td><td>'+v.negative+'%</td></tr>';}).join('')+'</tbody></table><h2>Premium Pricing Opportunities</h2><table><thead><tr><th>Variety</th><th>Crop</th><th>Consumer</th><th>Grower</th><th>C&ndash;G Gap</th></tr></thead><tbody>'+price.slice(0,20).map(function(v){return '<tr><td><strong>'+v.variety+'</strong></td><td>'+v.crop+'</td><td>'+v.consumer+'</td><td>'+v.grower+'</td><td style="color:#d97706;font-weight:700">+'+v.cgGap+' pts</td></tr>';}).join('')+'</tbody></table><div class="footer">Floraputation &middot; Variety Reputation Intelligence &middot; floraputation.com</div></body></html>';var blob=new Blob([html],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='floraputation-'+qtr.replace(' ','-').toLowerCase()+'-report.html';a.click();}
 
 function generateAIInsights(v){var insights=[];if(v.score>=80)insights.push({type:'strategy',label:'Strategy',text:v.variety+' is a top performer with a score of '+v.score+'/100. Prioritise for mass-market rollout and increase marketing investment.'});else if(v.score<60)insights.push({type:'risk',label:'Risk Alert',text:'Score of '+v.score+'/100 is below threshold. Evaluate whether to phase out or invest in variety improvement.'});var cgDiff=v.consumer-v.grower;if(Math.abs(cgDiff)>=15){if(cgDiff>0){insights.push({type:'pricing',label:'Pricing Signal',text:'Consumer score ('+v.consumer+') is '+cgDiff+' pts above Grower score ('+v.grower+'). Strong signal to increase wholesale price.'});}else{insights.push({type:'pricing',label:'Pricing Signal',text:'Grower score ('+v.grower+') is '+Math.abs(cgDiff)+' pts above Consumer score ('+v.consumer+'). Consider improving consumer marketing or adjusting variety positioning.'});}}if(v.trend>5)insights.push({type:'market',label:'Market Momentum',text:'Trend is +'+v.trend+'% &mdash; accelerating growth. Consider expanding into underpenetrated markets now.'});else if(v.trend<-5)insights.push({type:'risk',label:'Declining Trend',text:'Trend is '+v.trend+'% &mdash; declining momentum. Investigate root cause: grower complaints, competition, or seasonal shift.'});if(v.retailer>v.consumer+10)insights.push({type:'market',label:'Retail Opportunity',text:'Retailer score ('+v.retailer+') significantly exceeds Consumer score ('+v.consumer+'). Strong B2B channel opportunity.'});if(v.grower<60&&v.consumer>=75)insights.push({type:'strategy',label:'Elite Grower Strategy',text:'High consumer demand ('+v.consumer+') but grower difficulty ('+v.grower+'). Restrict to elite growers and position as premium.'});if(v.negative>20)insights.push({type:'risk',label:'Sentiment Risk',text:v.negative+'% negative sentiment is elevated. Investigate common complaints and address quality or availability issues.'});while(insights.length<4)insights.push({type:'strategy',label:'Recommendation',text:'Monitor '+v.variety+' closely over the next quarter. '+(v.score>=70?'Maintain current positioning.':'Consider strategic review.')});return insights.slice(0,6);}
-
-// ===== ALIAS CONTRIBUTION =====
-function aliasContributionHTML(v){
-  return '<div class="alias-section">'+
-    '<div class="alias-section-title">&#x1F310; Contribute Alias</div>'+
-    '<p style="font-size:12px;color:var(--text-3);margin-bottom:12px">Know this variety by another name or in another language? Help us build a multilingual database.</p>'+
-    '<div class="alias-form-row">'+
-      '<div class="alias-field"><label>Alias Name</label><input type="text" id="alias-name-input" placeholder="e.g. \u6ce1\u6ce1\u83ca"></div>'+
-      '<div class="alias-field"><label>Language</label>'+
-        '<select id="alias-lang-select">'+
-          '<option value="zh">Chinese (\u4E2D\u6587)</option>'+
-          '<option value="en">English</option>'+
-          '<option value="de">German (Deutsch)</option>'+
-          '<option value="fr">French (Fran\u00e7ais)</option>'+
-          '<option value="ja">Japanese (\u65E5\u672C\u8A9E)</option>'+
-          '<option value="nl">Dutch (Nederlands)</option>'+
-          '<option value="es">Spanish (Espa\u00f1ol)</option>'+
-          '<option value="other">Other</option>'+
-        '</select></div>'+
-      '<div class="alias-field"><label>Your Name <span style="color:var(--text-3);font-weight:400">(optional)</span></label><input type="text" id="alias-contributor-input" placeholder="e.g. Shelley"></div>'+
-      '<button class="alias-submit-btn" onclick="submitAlias('+v.id+')">Submit Alias</button>'+
-    '</div>'+
-    '<div class="alias-msg" id="alias-msg"></div>'+
-  '</div>';
-}
-
-function submitAlias(varietyId){
-  var aliasName=(document.getElementById('alias-name-input')||{}).value||'';
-  var lang=(document.getElementById('alias-lang-select')||{}).value||'en';
-  var contributor=(document.getElementById('alias-contributor-input')||{}).value||'';
-  var msgEl=document.getElementById('alias-msg');
-  aliasName=aliasName.trim();
-  contributor=contributor.trim();
-  if(!aliasName){
-    if(msgEl){msgEl.style.color='#dc2626';msgEl.textContent='Please enter an alias name.';}
-    return;
-  }
-  var btn=document.querySelector('.alias-submit-btn');
-  if(btn){btn.disabled=true;btn.textContent='Submitting...';}
-  if(msgEl){msgEl.style.color='var(--text-3)';msgEl.textContent='Submitting...';}
-  var payload={variety_id:varietyId,alias_name:aliasName,language:lang};
-  if(contributor)payload.contributor=contributor;
-  fetch(API_BASE+'/api/aliases/contribute',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  }).then(function(r){
-    if(!r.ok)throw new Error('API returned '+r.status);
-    return r.json();
-  }).then(function(data){
-    if(msgEl){msgEl.style.color='#16a34a';msgEl.textContent='\u2713 Alias submitted successfully! Thank you for contributing.';}
-    if(document.getElementById('alias-name-input'))document.getElementById('alias-name-input').value='';
-    if(document.getElementById('alias-contributor-input'))document.getElementById('alias-contributor-input').value='';
-  }).catch(function(err){
-    console.warn('Alias submission failed:',err);
-    if(msgEl){msgEl.style.color='#dc2626';msgEl.textContent='Submission failed. The backend API may not be available. Please try again later.';}
-  }).finally(function(){
-    if(btn){btn.disabled=false;btn.textContent='Submit Alias';}
-  });
-}
 
 function scoreColor(s){if(s>=85)return '#16a34a';if(s>=70)return '#22c55e';if(s>=55)return '#d97706';return '#dc2626';}
 function scoreGrade(s){if(s>=85)return {label:'Excellent',cls:'excellent'};if(s>=70)return {label:'Strong',cls:'strong'};if(s>=55)return {label:'Fair',cls:'fair'};return {label:'Weak',cls:'weak'};}
