@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: floraputation-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: oregon
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FIRECRAWL_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: BRIGHTDATA_API_KEY
+        sync: false
+      - key: XHS_MCP_URL
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: SCHEDULER_ENABLED
+        value: "true"
+      - key: SCRAPE_INTERVAL_HOURS
+        value: "24"
+      - key: MAX_VARIETIES_PER_BATCH
+        value: "10"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "30"
+    healthCheckPath: /health

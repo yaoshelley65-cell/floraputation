@@ -20,7 +20,7 @@ class Settings:
     app_debug: bool = os.getenv("APP_DEBUG", "false").lower() == "true"
     app_title: str = "Floraputation Backend API"
     app_description: str = "Backend data pipeline for the Floraputation plant variety reputation analysis platform."
-    app_version: str = "0.2.0"
+    app_version: str = "2.1.0"
 
     # Pagination defaults
     default_page_size: int = 20

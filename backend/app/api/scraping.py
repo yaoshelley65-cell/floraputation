@@ -86,7 +86,6 @@ async def scrape_variety(request: ScrapeRequest):
             platforms=request.platforms,
             max_posts_per_platform=request.max_posts,
             max_comments_per_post=request.max_comments,
-            firecrawl_scrape_content=request.scrape_web_content,
         )
         return result
     except Exception as e:

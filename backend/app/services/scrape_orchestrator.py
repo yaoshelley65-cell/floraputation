@@ -1,25 +1,28 @@
 """
 Scrape orchestrator for Floraputation.
 
-Coordinates all scrapers (Reddit, YouTube, Firecrawl) and stores
-results in Supabase for data accumulation over time.
-
-Search queries are built from structured Crop + Series + Variety fields.
+Coordinates all scrapers (Reddit, YouTube, Firecrawl, Xiaohongshu, Garden Centers, TikTok)
+and stores results in Supabase for data accumulation over time.
 """
 
 from __future__ import annotations
 
-from typing import List, Optional
+import os
+from typing import List, Optional, Dict, Any
 
 from app.core.database import get_supabase_admin_client
 from app.core.logging import get_logger
+from app.services.data_store import DataStore
+
+# Import all scrapers
 from app.scrapers.reddit_scraper import RedditScraper
 from app.scrapers.youtube_scraper import YouTubeScraper
 from app.scrapers.firecrawl_scraper import FirecrawlScraper
-from app.services.data_store import DataStore
+from app.scrapers.xiaohongshu_scraper import XiaohongshuScraper
+from app.scrapers.garden_centers_scraper import GardenCentersScraper
+from app.scrapers.tiktok_scraper import TikTokScraper
 
 logger = get_logger(__name__)
-
 
 def build_search_query(crop: str, variety: str, series: str = "") -> str:
     """Build a structured search query from Crop + Series + Variety."""
@@ -29,24 +32,48 @@ def build_search_query(crop: str, variety: str, series: str = "") -> str:
     parts.append(variety.strip())
     return " ".join(parts)
 
-
 class ScrapeOrchestrator:
     """Orchestrates scraping across all platforms with data accumulation."""
 
     def __init__(self):
         """Initialize all scrapers and data store."""
         self.store = DataStore()
-        self.reddit = RedditScraper(subreddits=[
-            "gardening", "flowers", "plants", "landscaping",
-            "horticulture", "IndoorGarden",
-        ])
+        
+        # 1. Reddit (Optimized)
+        self.reddit = RedditScraper()
+        
+        # 2. YouTube
         self.youtube = YouTubeScraper()
-
+        
+        # 3. Firecrawl (General Web)
         try:
             self.firecrawl = FirecrawlScraper()
-        except ValueError:
+        except Exception:
             logger.warning("Firecrawl not configured, web scraping disabled.")
             self.firecrawl = None
+            
+        # 4. Xiaohongshu (MCP based, with Firecrawl fallback)
+        try:
+            self.xhs = XiaohongshuScraper()
+        except Exception as e:
+            logger.warning("Xiaohongshu scraper init failed: %s", str(e))
+            self.xhs = None
+        
+        # 5. Garden Centers (Firecrawl based) — graceful degradation
+        try:
+            self.garden_centers = GardenCentersScraper()
+        except Exception as e:
+            logger.warning("Garden Centers scraper not available (Firecrawl key required): %s", str(e))
+            self.garden_centers = None
+        
+        # 6. TikTok (Bright Data based) — graceful degradation
+        try:
+            self.tiktok = TikTokScraper()
+            if not self.tiktok.api_key:
+                logger.info("TikTok scraper initialised but BRIGHTDATA_API_KEY not set; will skip TikTok.")
+        except Exception as e:
+            logger.warning("TikTok scraper init failed: %s", str(e))
+            self.tiktok = None
 
     def scrape_variety(
         self,
@@ -57,36 +84,25 @@ class ScrapeOrchestrator:
         platforms: Optional[List[str]] = None,
         max_posts_per_platform: int = 5,
         max_comments_per_post: int = 10,
-        firecrawl_scrape_content: bool = True,
     ) -> dict:
         """
-        Run a full scraping pipeline for a plant variety.
-
-        Args:
-            variety_name: The variety name
-            crop_name: The crop name
-            series_name: Optional series name
-            search_query: Pre-built search query. If empty, built from crop+series+variety.
-            platforms: List of platforms to scrape
-            max_posts_per_platform: Max posts to collect per platform
-            max_comments_per_post: Max comments per post (Reddit only)
-            firecrawl_scrape_content: Whether to scrape full page content via Firecrawl
-
-        Returns:
-            dict with scraping results and statistics
+        Run a full scraping pipeline for a plant variety across multiple platforms.
         """
         if platforms is None:
             platforms = ["reddit", "youtube"]
+            if self.xhs:
+                platforms.append("xhs")
+            if self.garden_centers:
+                platforms.append("garden_centers")
+            if self.tiktok and self.tiktok.api_key:
+                platforms.append("tiktok")
             if self.firecrawl:
                 platforms.append("firecrawl")
 
-        # Build search query from structured fields if not provided
         if not search_query:
             search_query = build_search_query(crop_name, variety_name, series_name)
 
-        # variety_query stored in DB for later retrieval
         variety_query = search_query
-
         results = {
             "crop": crop_name,
             "series": series_name,
@@ -96,35 +112,76 @@ class ScrapeOrchestrator:
             "totals": {"posts": 0, "comments": 0, "errors": 0},
         }
 
-        # --- Reddit ---
-        if "reddit" in platforms:
+        # Mapping of platform names to their scraper instances
+        platform_map = {
+            "reddit": self.reddit,
+            "youtube": self.youtube,
+            "xhs": self.xhs,
+            "garden_centers": self.garden_centers,
+            "tiktok": self.tiktok,
+            "firecrawl": self.firecrawl,
+        }
+
+        for platform in platforms:
+            scraper = platform_map.get(platform)
+            if not scraper:
+                logger.info("[%s] Scraper not available, skipping.", platform)
+                continue
+                
             try:
-                logger.info("Scraping Reddit for '%s'...", search_query)
-                reddit_data = self.reddit.search_and_collect(
-                    search_query,
-                    max_posts=max_posts_per_platform,
-                    max_comments_per_post=max_comments_per_post,
-                )
-                posts = reddit_data["posts"]
-                comments = reddit_data["comments"]
+                logger.info("[%s] Scraping for '%s'...", platform, search_query)
+                
+                if platform == "firecrawl":
+                    # Firecrawl has its own search_and_scrape method
+                    data = scraper.search_and_scrape(search_query, max_results=max_posts_per_platform)
+                    posts = data.get("posts", [])
+                    comments = []
+                elif platform == "garden_centers":
+                    # Garden centers search_posts returns ScrapedPost objects
+                    raw_posts = scraper.search_posts(search_query, limit=max_posts_per_platform, crop=crop_name)
+                    posts = [p.to_dict() for p in raw_posts]
+                    comments = []
+                elif platform == "tiktok":
+                    # TikTok needs special handling: pass URL to get_comments
+                    raw_posts = scraper.search_posts(search_query, limit=max_posts_per_platform)
+                    posts = [p.to_dict() for p in raw_posts]
+                    all_comments = []
+                    for post in raw_posts:
+                        try:
+                            post_comments = scraper.get_comments(
+                                post.source_id,
+                                limit=max_comments_per_post,
+                                url=post.url,
+                            )
+                            for c in post_comments:
+                                c.variety_query = search_query
+                                c.post_title = post.title
+                            all_comments.extend(post_comments)
+                        except Exception as e:
+                            logger.warning("[tiktok] Failed to get comments for post %s: %s", post.source_id, str(e))
+                    comments = [c.to_dict() for c in all_comments]
+                else:
+                    # Standard search_and_collect for Reddit, YouTube, XHS
+                    data = scraper.search_and_collect(
+                        search_query, 
+                        max_posts=max_posts_per_platform,
+                        max_comments_per_post=max_comments_per_post
+                    )
+                    posts = data.get("posts", [])
+                    comments = data.get("comments", [])
 
-                # Tag posts and comments with variety_query
-                for p in posts:
-                    p["variety_query"] = variety_query
-                for c in comments:
-                    c["variety_query"] = variety_query
-
+                # Store results
                 post_stats = self.store.store_posts_batch(posts)
                 comment_stats = self.store.store_comments_batch(comments)
 
                 self.store.log_scrape_job(
                     variety_query=variety_query,
-                    platform="reddit",
+                    platform=platform,
                     posts_found=len(posts),
                     comments_found=len(comments),
                 )
 
-                results["platforms"]["reddit"] = {
+                results["platforms"][platform] = {
                     "posts_found": len(posts),
                     "comments_found": len(comments),
                     "posts_stored": post_stats,
@@ -134,207 +191,20 @@ class ScrapeOrchestrator:
                 results["totals"]["comments"] += len(comments)
 
             except Exception as e:
-                logger.error("Reddit scraping failed: %s", str(e))
-                results["platforms"]["reddit"] = {"error": str(e)}
+                logger.error("[%s] Scraping failed: %s", platform, str(e))
+                results["platforms"][platform] = {"error": str(e)}
                 results["totals"]["errors"] += 1
                 self.store.log_scrape_job(
                     variety_query=variety_query,
-                    platform="reddit",
+                    platform=platform,
                     posts_found=0,
                     comments_found=0,
                     status="failed",
                     error_message=str(e),
                 )
 
-        # --- YouTube ---
-        if "youtube" in platforms:
-            try:
-                logger.info("Scraping YouTube for '%s'...", search_query)
-                yt_posts = self.youtube.search_posts(search_query, limit=max_posts_per_platform)
-                yt_post_dicts = [p.to_dict() for p in yt_posts]
-
-                for p in yt_post_dicts:
-                    p["variety_query"] = variety_query
-
-                post_stats = self.store.store_posts_batch(yt_post_dicts)
-
-                self.store.log_scrape_job(
-                    variety_query=variety_query,
-                    platform="youtube",
-                    posts_found=len(yt_posts),
-                    comments_found=0,
-                )
-
-                results["platforms"]["youtube"] = {
-                    "posts_found": len(yt_posts),
-                    "posts_stored": post_stats,
-                }
-                results["totals"]["posts"] += len(yt_posts)
-
-            except Exception as e:
-                logger.error("YouTube scraping failed: %s", str(e))
-                results["platforms"]["youtube"] = {"error": str(e)}
-                results["totals"]["errors"] += 1
-
-        # --- Firecrawl ---
-        if "firecrawl" in platforms and self.firecrawl:
-            try:
-                logger.info("Scraping web via Firecrawl for '%s'...", search_query)
-                fc_data = self.firecrawl.search_and_scrape(
-                    search_query,
-                    max_results=max_posts_per_platform,
-                    scrape_content=firecrawl_scrape_content,
-                )
-
-                for p in fc_data["posts"]:
-                    p["variety_query"] = variety_query
-
-                post_stats = self.store.store_posts_batch(fc_data["posts"])
-
-                # Store scraped content as comments
-                comments_stored = 0
-                for page in fc_data.get("scraped_content", []):
-                    comment_data = {
-                        "platform": "firecrawl",
-                        "source_id": page["url"],
-                        "post_id": page["url"],
-                        "post_title": page.get("title", ""),
-                        "author": "",
-                        "body": (page.get("markdown", "") or "")[:10000],
-                        "score": 0,
-                        "url": page["url"],
-                        "variety_query": variety_query,
-                        "extra": {"content_type": "scraped_page"},
-                    }
-                    result = self.store.store_comment(comment_data)
-                    if result:
-                        comments_stored += 1
-
-                self.store.log_scrape_job(
-                    variety_query=variety_query,
-                    platform="firecrawl",
-                    posts_found=len(fc_data["posts"]),
-                    comments_found=comments_stored,
-                )
-
-                results["platforms"]["firecrawl"] = {
-                    "posts_found": len(fc_data["posts"]),
-                    "pages_scraped": len(fc_data.get("scraped_content", [])),
-                    "comments_stored": comments_stored,
-                    "credits_remaining": fc_data.get("credits_remaining", -1),
-                    "posts_stored": post_stats,
-                }
-                results["totals"]["posts"] += len(fc_data["posts"])
-                results["totals"]["comments"] += comments_stored
-
-            except Exception as e:
-                logger.error("Firecrawl scraping failed: %s", str(e))
-                results["platforms"]["firecrawl"] = {"error": str(e)}
-                results["totals"]["errors"] += 1
-
-        # Get overall DB stats
         results["db_stats"] = self.store.get_scrape_stats()
-
-        logger.info(
-            "Scraping complete for '%s': %d posts, %d comments across %d platforms",
-            search_query,
-            results["totals"]["posts"],
-            results["totals"]["comments"],
-            len(results["platforms"]),
-        )
-
         return results
-
-    def scrape_varieties_batch(
-        self,
-        varieties: List[dict],
-        platforms: Optional[List[str]] = None,
-        max_posts_per_platform: int = 3,
-    ) -> List[dict]:
-        """
-        Scrape multiple varieties in batch.
-
-        Each item should have 'crop' + 'variety' (required) and 'series' (optional).
-        """
-        all_results = []
-        for v in varieties:
-            crop_name = v.get("crop", "")
-            variety_name = v.get("variety", "")
-            series_name = v.get("series", "")
-
-            if not variety_name or not crop_name:
-                continue
-
-            query = build_search_query(crop_name, variety_name, series_name)
-
-            logger.info(
-                "Batch scraping %d/%d: %s",
-                len(all_results) + 1,
-                len(varieties),
-                query,
-            )
-
-            result = self.scrape_variety(
-                variety_name=variety_name,
-                crop_name=crop_name,
-                series_name=series_name,
-                search_query=query,
-                platforms=platforms,
-                max_posts_per_platform=max_posts_per_platform,
-            )
-            all_results.append(result)
-
-        return all_results
-
-    def get_all_names_for_variety(self, variety_id: int) -> list:
-        """
-        Get all searchable names for a variety (primary + aliases).
-        Returns a list of search query strings.
-        """
-        try:
-            client = get_supabase_admin_client()
-
-            # Get primary name
-            variety = (
-                client.table("varieties")
-                .select("id, variety, crop, series")
-                .eq("id", variety_id)
-                .execute()
-            )
-            if not variety.data:
-                return []
-
-            v = variety.data[0]
-            crop = v.get("crop", "")
-            primary_name = v.get("variety", "")
-            series = v.get("series", "") or ""
-
-            names = [build_search_query(crop, primary_name, series)]
-
-            # Get aliases
-            aliases = (
-                client.table("variety_aliases")
-                .select("alias_name, language")
-                .eq("variety_id", variety_id)
-                .execute()
-            )
-
-            for a in aliases.data or []:
-                alias = a["alias_name"].strip()
-                if alias:
-                    # For non-English aliases, search with just the alias name
-                    # For English aliases, combine with crop
-                    lang = a.get("language", "").lower()
-                    if lang in ("en", "english"):
-                        names.append(build_search_query(crop, alias, series))
-                    else:
-                        names.append(alias)  # e.g. "泡泡菊" searched as-is
-
-            return names
-
-        except Exception as e:
-            logger.error("Error fetching aliases for variety %d: %s", variety_id, str(e))
-            return []
 
     def scrape_variety_with_aliases(
         self,
@@ -346,50 +216,132 @@ class ScrapeOrchestrator:
         """
         Scrape a variety using ALL its known names (primary + community aliases).
 
-        This expands search coverage across languages, collecting data
-        from English Reddit, Chinese web sources, etc.
+        Fetches the variety and its aliases from the database, then runs
+        scrape_variety for each name, combining all results.
         """
-        all_names = self.get_all_names_for_variety(variety_id)
-        if not all_names:
-            return {"error": f"Variety id={variety_id} not found or has no names"}
-
-        # Get variety info for the result
         client = get_supabase_admin_client()
+
+        # Get variety info
         variety = (
             client.table("varieties")
-            .select("id, variety, crop")
+            .select("id, variety, crop, series")
             .eq("id", variety_id)
             .execute()
         )
-        v = variety.data[0] if variety.data else {}
+        if not variety.data:
+            return {"error": f"Variety with id={variety_id} not found", "status": "failed"}
 
-        combined_results = {
+        v = variety.data[0]
+        primary_name = v["variety"]
+        crop_name = v.get("crop", "")
+        series_name = v.get("series", "")
+
+        # Get aliases
+        aliases = (
+            client.table("variety_aliases")
+            .select("alias_name, language")
+            .eq("variety_id", variety_id)
+            .execute()
+        )
+
+        all_names = [{"name": primary_name, "language": "en", "is_primary": True}]
+        for a in aliases.data or []:
+            all_names.append({
+                "name": a["alias_name"],
+                "language": a.get("language", ""),
+                "is_primary": False,
+            })
+
+        # Scrape for each name
+        combined_results = []
+        total_posts = 0
+        total_comments = 0
+
+        for name_info in all_names:
+            try:
+                result = self.scrape_variety(
+                    variety_name=name_info["name"],
+                    crop_name=crop_name,
+                    series_name=series_name if name_info["is_primary"] else "",
+                    platforms=platforms,
+                    max_posts_per_platform=max_posts_per_platform,
+                    max_comments_per_post=max_comments_per_post,
+                )
+                total_posts += result["totals"]["posts"]
+                total_comments += result["totals"]["comments"]
+                combined_results.append({
+                    "name": name_info["name"],
+                    "language": name_info["language"],
+                    "is_primary": name_info["is_primary"],
+                    "result": result,
+                })
+            except Exception as e:
+                logger.error("Alias scrape failed for '%s': %s", name_info["name"], str(e))
+                combined_results.append({
+                    "name": name_info["name"],
+                    "language": name_info["language"],
+                    "is_primary": name_info["is_primary"],
+                    "error": str(e),
+                })
+
+        return {
             "variety_id": variety_id,
-            "variety_name": v.get("variety", ""),
-            "crop_name": v.get("crop", ""),
-            "names_searched": all_names,
-            "per_name_results": [],
-            "totals": {"posts": 0, "comments": 0, "errors": 0},
+            "primary_name": primary_name,
+            "crop": crop_name,
+            "total_names_searched": len(all_names),
+            "total_posts": total_posts,
+            "total_comments": total_comments,
+            "results_by_name": combined_results,
         }
 
-        for name in all_names:
-            logger.info("Scraping with name: '%s'", name)
-            result = self.scrape_variety(
-                variety_name=name,
-                crop_name=v.get("crop", ""),
-                search_query=name,
-                platforms=platforms,
-                max_posts_per_platform=max_posts_per_platform,
-                max_comments_per_post=max_comments_per_post,
-            )
-            combined_results["per_name_results"].append({
-                "name": name,
-                "posts": result["totals"]["posts"],
-                "comments": result["totals"]["comments"],
-            })
-            combined_results["totals"]["posts"] += result["totals"]["posts"]
-            combined_results["totals"]["comments"] += result["totals"]["comments"]
-            combined_results["totals"]["errors"] += result["totals"]["errors"]
+    def scrape_varieties_batch(
+        self,
+        varieties: List[dict],
+        platforms: Optional[List[str]] = None,
+        max_posts_per_platform: int = 3,
+    ) -> List[dict]:
+        """
+        Scrape multiple varieties in batch.
 
-        combined_results["db_stats"] = self.store.get_scrape_stats()
-        return combined_results
+        Args:
+            varieties: List of dicts with 'crop', 'variety', and optional 'series'
+            platforms: Platforms to scrape
+            max_posts_per_platform: Max posts per platform per variety
+
+        Returns:
+            List of scrape results for each variety
+        """
+        results = []
+        for v in varieties:
+            crop = v.get("crop", "")
+            variety = v.get("variety", "")
+            series = v.get("series", "")
+
+            if not crop or not variety:
+                results.append({
+                    "crop": crop,
+                    "variety": variety,
+                    "status": "skipped",
+                    "error": "Both crop and variety are required",
+                })
+                continue
+
+            try:
+                result = self.scrape_variety(
+                    variety_name=variety,
+                    crop_name=crop,
+                    series_name=series,
+                    platforms=platforms,
+                    max_posts_per_platform=max_posts_per_platform,
+                )
+                results.append(result)
+            except Exception as e:
+                logger.error("Batch scrape failed for %s %s: %s", crop, variety, str(e))
+                results.append({
+                    "crop": crop,
+                    "variety": variety,
+                    "status": "failed",
+                    "error": str(e),
+                })
+
+        return results
